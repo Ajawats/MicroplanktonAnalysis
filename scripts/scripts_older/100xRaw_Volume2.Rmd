@@ -1,0 +1,221 @@
+---
+title: "100xVolume"
+author: "Allison Adams"
+date: "6/10/2022"
+output: html_document
+---
+6/10/22
+This file is with RawCounts 100x, starting with calculating the volumes so I can then calculate biomass
+
+
+```{r}
+library(tidyverse)
+library(writexl)
+getwd()
+```
+Add this at the bottom
+install.packages("writexl")
+library(writexl)
+write_xlsx(outAll, "add filepath and name here.xlsx")
+
+Load the excel data file
+```{r}
+raw_vol100 <- read_csv("100xRaw_R.csv")
+```
+Convert to long format
+
+raw_vol_long <- pivot_longer(data = raw_vol100,
+                             cols = c("SJR2_site", "SJR2_FC1", 
+                                      "SJR2_T241", "SJR2_FC2", 
+                                      "SJR2_T242", "SJR2_FC3", 
+                                      "SJR2_T243", "SJR2_IC1", 
+                                      "SJR2_IC2", "SJR2_IC3", 
+                                      "YBP1_site", "YBP1_FC1", 
+                                      "YBP1_T241", "YBP1_FC2", 
+                                      "YBP1_T242", "YBP1_FC3", 
+                                      "YBP1_T243", "YBP1_IC1", 
+                                      "YBP1_IC2", "YBP1_IC3", 
+                                      "LSZ2_site", "LSZ2_FC1", 
+                                      "LSZ2_T241", "LSZ2_FC2", 
+                                      "LSZ2_T242", "LSZ2_FC3", 
+                                      "LSZ2_T243", "LSZ2_IC1", 
+                                      "LSZ2_IC2", "LSZ2_IC3",
+                                      "WLD2_site", "WLD2_FC1", 
+                                      "WLD2_T241", "WLD2_FC2", 
+                                      "WLD2_T242", "WLD2_FC3", 
+                                      "WLD2_T243", "WLD2_IC1", 
+                                      "WLD2_IC2", "WLD2_IC3",
+                                      "SJR1_site", "SJR1_FC1", 
+                                      "SJR1_T241", "SJR1_FC2", 
+                                      "SJR1_T242", "SJR1_FC3", 
+                                      "SJR1_T243", "SJR1_IC1", 
+                                      "SJR1_IC2", "SJR1_IC3",),
+                             names_to = "sample",
+                             values_to = "counts")
+
+In the above code, I forgot to add the YBP2 stations, so it kept those columns.
+
+Also, below is an experiment following Luka's advice to add the cols = for the sample names without writing them all out like I did above. It worked!
+
+```{r}
+raw_vol_long <- pivot_longer(data = raw_vol100,
+                             cols = c(8:67),
+                             names_to = "sample",
+                             values_to = "counts")
+```
+
+Below is another way to do the above, per Luka. Since all the station columns contain an underscore, I can try to select those columns that contain one using the contains() function
+```{r}
+raw_vol_long_exp2 <- pivot_longer(data = raw_vol100,
+                             cols = contains("_"),
+                             names_to = "sample",
+                             values_to = "counts")
+```
+Rearrange the column orders using the select function, and then change the NAs to 0s using the mutate function.
+```{r}
+raw_vol_final <- mutate(raw_vol_long, counts = ifelse(is.na(counts), 0, counts)) %>% 
+  select(sample, Organism, Group, name, shp, sa, la, wi, counts)
+```
+Make another column for high growth rate and low growth rate stations and reorder the rows according to highs and lows. Use grepl to get R to designate all samples under on station to the respective high or low, as in YBP2_site, YBP2_FC1, and so on.
+
+Luka said, grepl("YBP2", sample)
+instead of
+sample == "YBP2"
+
+```{r}
+raw_vol_sta_fin <- mutate(raw_vol_final, 
+   growth_rate = case_when( grepl("YBP2", sample) ~ "high",
+                            grepl("SJR1", sample) ~ "high",
+                            grepl("LSZ2", sample) ~ "high",
+                            grepl("YBP1", sample) ~ "low",
+                            grepl("SJR2", sample) ~ "low",
+                            grepl("WLD2", sample) ~ "low")) %>% 
+  relocate(growth_rate) %>% 
+  arrange(growth_rate, sample)
+```
+
+
+This is the chunk of code I ran previously, saving it just in case, but don't want to run it.
+raw_vol_sta_fin <- mutate(raw_vol_final, 
+   growth_rate = case_when(sample == "YBP2" ~ "high",
+                           sample == "SJR1" ~ "high",
+                           sample == "LSZ2" ~ "high",
+                           sample == "YBP1" ~ "low",
+                           sample == "SJR2" ~ "low",
+                           sample == "WLD2" ~ "low")) %>% 
+  relocate(growth_rate) %>% 
+  arrange(growth_rate, sample)
+  
+This below is from when Wim was trying to help me. He suggested I use ifelse and substring, but since Luka told me how to use grepl, there was no need for me to figure this out.
+raw_vol_sta_fin$growth_rate <- 
+ ifelse(substring (sample == "YBP2" , "high",
+        "SJR1" , "high",)
+        
+ #### Here I'll try to use the toy code to filter by counts >0:
+ cil_ct_by_site_no0 <- group_by(cil_ct_by_site, Organism) %>% 
+  filter(sum(counts)>0) %>% 
+  ungroup()
+cil_ct_by_site_no0  
+
+```{r}
+raw_vol_no0 <- group_by(raw_vol_final, name) %>% 
+  filter(sum(counts)>0) %>% 
+  ungroup()
+raw_vol_no0
+```
+Save raw_vol_no0 as xlsx
+```{r}
+write_xlsx(raw_vol_no0, "/Users/allisonadams/Documents/Thesis/Microplankton/R Work/100x June 2022/Raw_Vol.xlsx")
+```
+
+Add the equations function
+
+```{r}
+vol_func <- function(diameter, height, width, shape, counts) {
+  pi= 3.1415
+  volume = 0
+   if(grepl("cone1", shape, ignore.case = TRUE)){
+    volume = (pi/12) * diameter^2 * height
+   }
+  if(grepl("cones2", shape, ignore.case = TRUE)){
+    volume = 2*(pi/12) * diameter^2 * height
+  }
+   if(grepl("sph", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter^3
+   } 
+  if(grepl("prosph", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter^2 * height
+  }
+  if(grepl("cyl", shape, ignore.case = TRUE)){
+    volume = (pi/4) * diameter^2 * height
+  }
+  if(grepl("ellips1", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter * height * width
+  }
+  if(grepl("recbox", shape, ignore.case = TRUE)){
+    volume = diameter * height * width
+  }
+  if(grepl("prisell", shape, ignore.case = TRUE)){
+    volume = (pi/4) * diameter * height * width
+  }
+  if(grepl("prispar", shape, ignore.case = TRUE)){
+    volume = 0.5 * diameter * height * width
+  }
+  if(grepl("ellipsoid + 2 cones + cylinder", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter^2 * height
+  }
+  if(volume == 0){
+    return(NA)
+  } else{
+    return(volume * counts)
+  }
+ }
+```
+
+Run the data with the volume equations
+```{r}
+vol_all2 <- rowwise(raw_vol_no0) %>% 
+  mutate(volume = vol_func(diameter = sa, height = la, width = wi, shape = shp, counts = counts))
+```
+The error is because grepl() matches that dinoflagellate row with both "ellipsoid + 2 cones + cylinder" and "ellips" becasue it finds "ellips" nside the longer shape name of "ellipsoid + 2 cones + cylinder". And the error arises becasue "ellips" requires the width dimension whereas the other one does not. Fix this by renaming the ellips shape name to a pattern that is not  also found in the other shape (i.e., ellipsoid). For example, rename those shapes to “ellips simple” or something like that:
+This line of code where you are preparing the data should do the trick. Just replace “Raw_Vol” with whatever you named your dataframe in R
+Raw_Vol <- mutate(Raw_Vol, shp = ifelse(shp == "ellips", "ellips simple", shp))
+Then, make sure to change the search pattern in your volumes function to “ellips simple” too:
+if(grepl("ellips simple", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter * height * width
+  }
+  
+  
+  I also needed to change the cone and cones2, since that would present the same error, but it wouldn't be apparent since both equations require only diameter and height. So, I tried to do both in one line and got errors: ol_all <- mutate(raw_vol_no0, shp = ifelse(shp == "ellips", "ellips1", shp) +  shp = ifelse(shp == "cone", "cone1", shp))
+Error: unexpected '=' in:
+"vol_all <- mutate(raw_vol_no0, shp = ifelse(shp == "ellips", "ellips1", shp) + shp ="
+                    
+I needed to combine them with a comma instead of a +
+
+Luka also suggested an alternative code: vol_all <- mutate(raw_vol_no0, shp = case_when(shp == "ellips" ~ "ellips1", shp == "cone" ~ "cone1", TRUE)
+
+```{r}
+rawct_vol <- mutate(raw_vol_no0, shp = ifelse(shp == "ellips", "ellips1", shp),
+                               shp = ifelse(shp == "cone", "cone1", shp))
+```
+ Now run the volume with this improved file
+ 
+```{r}
+vol_all <- rowwise(rawct_vol) %>% 
+  mutate(volume = vol_func(diameter = sa, height = la, width = wi, shape = shp, counts = counts))
+```
+ 
+ 
+ Below is where I did it by using two lines of code and two different file names, but the above is better.
+```{r}
+#vol_all <- mutate(raw_vol_no0, shp = ifelse(shp == "ellips", "ellips1", shp))
+
+#vol_all1 <- mutate(vol_all, shp =  ifelse(shp == "cone", "cone1", shp))
+```
+
+Add the biomass calculations   
+```{r}
+vol_all_bio <- rowwise(vol_all) %>% 
+  mutate(biomass = biomass_func(volume = volume, Group = Group))
+```
+

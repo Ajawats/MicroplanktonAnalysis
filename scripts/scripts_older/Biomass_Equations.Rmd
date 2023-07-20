@@ -1,0 +1,50 @@
+---
+title: "Biomass Equations"
+author: "Allison Adams"
+date: "6/16/2022"
+output: html_document
+---
+Code for converting the volumes to biomass for the different organisms. See excel file, DiffDimAll_Detailed_Final_06_09, for the equations that go with the various shapes.
+
+This version uses the aloricate ciliate equation from Menden_Deuer & Lessard 2000 (MDL).
+Need to do another one with the Putt & Stoecker 1989 ratio.
+Might also try with the MDL protist plankton equation
+Need to separate diatoms by size and do two equations according to MDL. Here I used the equation for diatoms > 3000 µm^3, since the first dataset I'm working with is the 100x samples
+```{r}
+biomass_func <- function(Group, volume) {
+  biomass = 0
+   if(grepl("ciliate", Group, ignore.case = TRUE)){
+    biomass = .23 * volume^.984
+  }
+   if(grepl("tintinnid", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+   }
+   if(grepl("chlorophyte", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+   }
+   if(grepl("diatom", Group, ignore.case = TRUE)){
+    biomass = .117 * volume^.881
+  }
+   if(grepl("dinoflagellate", Group, ignore.case = TRUE)){
+    biomass = .760 * volume^.819
+   }
+   if(grepl("flagellate", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+  }
+   if(grepl("ochrophyte", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+  }
+   if(grepl("unidentified", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+  }
+   if(grepl("cyanobacteria", Group, ignore.case = TRUE)){
+    biomass = .181 * volume
+  }
+  if(biomass == 0){
+    return(NA)
+  } else{
+    return(biomass)
+  }
+ }
+```
+

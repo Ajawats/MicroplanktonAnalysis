@@ -1,0 +1,37 @@
+---
+title: "Biomass test"
+author: "Allison Adams"
+date: "6/16/2022"
+output: html_document
+---
+This is a test of my draft of a biomass calculation function.
+
+```{r}
+biomass_func <- function(Group, volume) {
+  biomass = 0
+   if(grepl("ciliate", Group, ignore.case = TRUE)){
+    biomass = .23 * volume^.984
+  }
+   if(grepl("tintinnid", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+  }
+  if(biomass == 0){
+    return(NA)
+  } else{
+    return(biomass)
+  }
+ }
+```
+
+Make a copy of vol_all with just ciliates and tintinnids.
+ 
+```{r}
+ciltin_vol <- filter(vol_all, Group == "ciliate" | Group == "tintinnid")
+```
+
+Apply the biomass function to ciltin_vol
+```{r}
+ciltin_bio <- rowwise(ciltin_vol) %>% 
+  mutate(biomass = biomass_func(volume = volume, Group = Group))
+```
+

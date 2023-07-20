@@ -1,0 +1,55 @@
+---
+title: "Volume Equations"
+author: "Allison Adams"
+date: "6/16/2022"
+output: html_document
+---
+## Writing equations for volume calculations: see original file "Equations" 4/7/22
+## New File all the way at the bottom that includes new equations:
+Cone, Cylinder, Two Cones, Ellipsoid, Prism on Elliptic Base, Prism on Parallelogram, Prolate Spheroid, Rectangular Box, Sphere
+## Also note ine 100xRaw_Volume2.Rmd, that I had to change the shape codes for cone, and ellips since they were seen as duplicates.
+For the orignal volume equation function file, go to Deskton/New Growth Rate/VolumeEquations2_R.Rmd
+```{r}
+library(tidyverse)
+```
+
+```{r}
+vol_func <- function(diameter, height, width, shape, counts) {
+  pi= 3.1415
+  volume = 0
+   if(grepl("cone1", shape, ignore.case = TRUE)){
+    volume = (pi/12) * diameter^2 * height
+   }
+  if(grepl("cones2", shape, ignore.case = TRUE)){
+    volume = 2*(pi/12) * diameter^2 * height
+  }
+   if(grepl("sph", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter^3
+   } 
+  if(grepl("prosph", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter^2 * height
+  }
+  if(grepl("cyl", shape, ignore.case = TRUE)){
+    volume = (pi/4) * diameter^2 * height
+  }
+  if(grepl("ellips1", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter * height * width
+  }
+  if(grepl("recbox", shape, ignore.case = TRUE)){
+    volume = diameter * height * width
+  }
+  if(grepl("prisell", shape, ignore.case = TRUE)){
+    volume = (pi/4) * diameter * height * width
+  }
+  if(grepl("prispar", shape, ignore.case = TRUE)){
+    volume = 0.5 * diameter * height * width
+  }
+  if(grepl("ellipsoid + 2 cones + cylinder", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter^2 * height
+  }
+  if(volume == 0){
+    return(NA)
+  } else{
+    return(volume * counts)
+  }
+ }

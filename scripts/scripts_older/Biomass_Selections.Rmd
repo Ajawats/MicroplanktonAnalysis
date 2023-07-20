@@ -1,0 +1,59 @@
+---
+title: "Biomass_Selections"
+author: "Allison Adams"
+date: "6/20/2022"
+output: html_document
+---
+This file is for finding out ways to select the data by "type" so I can look at the sizes and choose what size classes to create to group the organsim types by.
+
+Chlorophytes
+Note that in this code, the ^ symbol means "everything that starts with" the characters that follow it.
+Note: %>% distinct(sa, la, .keep_all = TRUE), this line keeps the first row where those dimensions occur and eliminates all the others. So I can see all the distinct dimensions, but not how many of them there are, or the total biomass for all those rows.
+
+```{r}
+names(volbio_all_no0)
+unique(volbio_all_no0$Group)
+```
+
+
+```{r}
+bio_chlor <- vol_single_no0[grepl("^Chloro", volbio_all_no0$Organism), ] 
+bio_chlor_dim <- vol_single_no0[grepl("^Chloro", volbio_all_no0$Organism), ]  %>% distinct(sa, la, wi, .keep_all = TRUE) 
+                   
+```
+Tried to figure out a way for R to add the biomass of the organisms of the same dimension, and add a column saying how many entries there were for those dimensions, but haven't figured it out.
+```{r}
+#biomass_dim <- function()
+```
+
+
+```{r}
+write_xlsx( bio_chlor_dim, "/Users/allisonadams/Documents/Thesis/Microplankton/R Work/100x June 2022/Bio_Chlor_Dim.xlsx")
+str(bio_chlor)
+```
+
+Cilates
+```{r}
+bio_cil <- vol_single_no0[grepl("^Ciliate", volbio_all_no0$Organism), ]
+```
+
+```{r}
+bio_cil_dim <- vol_single_no0[grepl("^Ciliate", volbio_all_no0$Organism), ] %>% distinct(sa, la, .keep_all = TRUE)
+```
+
+```{r}
+#write_xlsx(bio_cil,"/Users/allisonadams/Documents/Thesis/Microplankton/R Work/100x June 2022/Bio_Ciliate.xlsx")
+```
+
+```{r}
+bio_cil <- volbio_all_no0[grepl("^Ciliate", volbio_all_no0$Organism), ]
+```
+
+```{r}
+bio_cil_dim <- volbio_all_no0[grepl("^Ciliate", volbio_all_no0$Organism), ] %>% distinct(sa, la, .keep_all = TRUE)
+```
+
+```{r}
+#write_xlsx(bio_cil,"/Users/allisonadams/Documents/Thesis/Microplankton/R Work/100x June 2022/Bio_Ciliate.xlsx")
+```
+

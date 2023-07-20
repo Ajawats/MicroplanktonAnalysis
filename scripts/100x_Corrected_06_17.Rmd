@@ -1,0 +1,254 @@
+---
+title: "100x_Corrected_06_17"
+author: "Allison Adams"
+date: "6/17/2022"
+output: html_document
+---
+This file is for volume and biomass using a corrected raw counts file that includes the "type" column so I can use that column to sort out the organism.
+
+It also contains code for calculating the volume of a single organism, and for creating data files filtered for one organism group at at time, such as chlorophytes, ciliates, etc.
+
+See file 100x_VolBio2.R for code only for volume and biomass calculations.
+
+This contains both the volume and the biomass calculations
+```{r}
+library(tidyverse)
+library(writexl)
+getwd()
+```
+Load the excel csv data file
+```{r}
+volbio100_cor <- read_csv("100x_Corrected_06_17.csv")
+```
+Convert to long format
+
+```{r}
+volbio_long_cor <- pivot_longer(data = volbio100_cor,
+                             cols = c(9:68),
+                             names_to = "sample",
+                             values_to = "counts")
+```
+
+Rearrange the column orders using the select function, and then change the NAs to 0s using the mutate function.
+```{r}
+volbio_final_cor <- mutate(volbio_long_cor, counts = ifelse(is.na(counts), 0, counts)) %>% 
+  select(sample, Organism, Group, type, name, shp, sa, la, wi, counts)
+```
+
+Note: I don't need to do this because I changed the shape name for cone to cone1 in the Excel file. (Volume Equation Calculations: change the cone to cone1 so R won't run all the cones2 and cones)
+
+```{r}
+#volbio_fin_cn <- mutate(volbio_final, shp = ifelse(shp == "cone", "cone1", shp))
+```
+Run the volume function
+```{r}
+vol_func <- function(diameter, height, width, shape, counts) {
+  pi= 3.1415
+  volume = 0
+   if(grepl("cone1", shape, ignore.case = TRUE)){
+    volume = (pi/12) * diameter^2 * height
+   }
+  if(grepl("cones2", shape, ignore.case = TRUE)){
+    volume = 2*(pi/12) * diameter^2 * height
+  }
+   if(grepl("sph", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter^3
+   } 
+  if(grepl("prosph", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter^2 * height
+  }
+  if(grepl("cyl", shape, ignore.case = TRUE)){
+    volume = (pi/4) * diameter^2 * height
+  }
+  if(grepl("ellips", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter * height * width
+  }
+  if(grepl("recbox", shape, ignore.case = TRUE)){
+    volume = diameter * height * width
+  }
+  if(grepl("prisell", shape, ignore.case = TRUE)){
+    volume = (pi/4) * diameter * height * width
+  }
+  if(grepl("prispar", shape, ignore.case = TRUE)){
+    volume = 0.5 * diameter * height * width
+  }
+  if(volume == 0){
+    return(NA)
+  } else{
+    return(volume * counts)
+  }
+ }
+```
+
+Calculate volumes
+```{r}
+volbio_fin_cn2 <- rowwise(volbio_final_cor) %>% 
+  mutate(volume = vol_func(diameter = sa, height = la, width = wi, shape = shp, counts = counts))
+```
+
+Try to use the volume function to add a column that just calculates volume of one organism and not mulitplying it by the counts
+
+First use the vol_func to create a volume function that doesn't muliply by the counts
+
+```{r}
+vol_func_single <- function(diameter, height, width, shape, counts) {
+  pi= 3.1415
+  volume = 0
+   if(grepl("cone1", shape, ignore.case = TRUE)){
+    volume = (pi/12) * diameter^2 * height
+   }
+  if(grepl("cones2", shape, ignore.case = TRUE)){
+    volume = 2*(pi/12) * diameter^2 * height
+  }
+   if(grepl("sph", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter^3
+   } 
+  if(grepl("prosph", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter^2 * height
+  }
+  if(grepl("cyl", shape, ignore.case = TRUE)){
+    volume = (pi/4) * diameter^2 * height
+  }
+  if(grepl("ellips", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter * height * width
+  }
+  if(grepl("recbox", shape, ignore.case = TRUE)){
+    volume = diameter * height * width
+  }
+  if(grepl("prisell", shape, ignore.case = TRUE)){
+    volume = (pi/4) * diameter * height * width
+  }
+  if(grepl("prispar", shape, ignore.case = TRUE)){
+    volume = 0.5 * diameter * height * width
+  }
+  if(volume == 0){
+    return(NA)
+  } else{
+    return(volume)
+  }
+ }
+```
+ 
+ Then create a new file that includes this single volume column
+```{r}
+vol_single <- rowwise(volbio_final_cor) %>% 
+  mutate(volume = vol_func_single(diameter = sa, height = la, width = wi, shape = shp, counts = counts))
+```
+
+Don't forget to Eliminate all the rows that have zero occurrences
+```{r}
+vol_single_no0 <- vol_single %>% 
+    rowwise() %>% 
+    filter(counts != 0)
+```
+
+Add the biomass function
+```{r}
+biomass_func <- function(Group, volume) {
+  biomass = 0
+   if(grepl("ciliate", Group, ignore.case = TRUE)){
+    biomass = .23 * volume^.984
+  }
+   if(grepl("tintinnid", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+   }
+   if(grepl("chlorophyte", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+   }
+   if(grepl("diatom", Group, ignore.case = TRUE)){
+    biomass = .117 * volume^.881
+  }
+   if(grepl("dinoflagellate", Group, ignore.case = TRUE)){
+    biomass = .760 * volume^.819
+   }
+   if(grepl("flagellate", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+  }
+   if(grepl("ochrophyte", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+  }
+   if(grepl("unidentified", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+  }
+   if(grepl("cyanobacteria", Group, ignore.case = TRUE)){
+    biomass = .181 * volume
+  }
+  if(biomass == 0){
+    return(NA)
+  } else{
+    return(biomass)
+  }
+ }
+```
+
+Calculate Biomass  
+```{r}
+volbio_all <- rowwise(volbio_fin_cn2) %>% 
+  mutate(biomass = biomass_func(volume = volume, Group = Group))
+```
+
+Eliminate all the rows that have zero occurrences
+```{r}
+volbio_all_no0 <- volbio_all %>% 
+    rowwise() %>% 
+    filter(counts != 0)
+```
+
+Create the file as an excel document
+write_xlsx(outAll, "add filepath and name here.xlsx")
+```{r}
+write_xlsx(volbio_all_no0, "/Users/allisonadams/Documents/Thesis/Microplankton/R Work/100x June 2022/VolBioAllNo0_test.xlsx")
+```
+
+Look at the data to see how I can group by size class. Try pivot_wider to see the distribution of organisms by station/sample
+Note: after looking at volbio_wide, this isn't as helpful as I expected for seeing organisms by size.
+
+```{r}
+volbio_wide <- pivot_wider(volbio_all_no0, names_from = Organism, values_from = biomass)
+```
+
+```{r}
+write_xlsx(volbio_wide, "/Users/allisonadams/Documents/Thesis/Microplankton/R Work/100x June 2022/VolBioWide.xlsx")
+```
+
+This below is for finding out ways to select the data by "type" so I can look at the sizes and choose what size classes to create to group the organsim types by. See the Dimensions Summaries.R file for all groups analyzed like below.
+
+Chlorophytes
+Note that in this code, the ^ symbol means "everything that starts with" the characters that follow it.
+Note: %>% distinct(sa, la,  wi, .keep_all = TRUE), this line keeps the first row where those dimensions occur and eliminates all the others. So I can see all the distinct dimensions, but not how many of them there are, or the total biomass for all those rows.
+```{r}
+bio_chlor <- volbio_all_no0[grepl("^Chloro", volbio_all_no0$Organism), ] 
+bio_chlor_dim <- volbio_all_no0[grepl("^Chloro", volbio_all_no0$Organism), ]  %>% distinct(sa, la, wi, .keep_all = TRUE)
+```
+
+Code below from Luka in response to my question of how to see how many dimension categories there are for each organism group, as well as total the biomass of all those of the same dimensions.
+
+final_summary_table <- group_by(your_data, dimensions_column) %>%
+   summarize(dimension_count = n(),
+             biomass_total = sum(biomasses_column))
+This was successful, but it eliminated the other columns. I want to keep Organism, Group and type
+```{r}
+dim_summary_table <- group_by(bio_chlor, sa, la, wi) %>%
+   summarize(dimension_count = n(),
+             biomass_total = sum(biomass))
+```
+This code below includes organism, group, and type.
+```{r}
+chlor_dim_table <- volbio_all_no0[grepl("^Chloro", volbio_all_no0$Organism), ] %>% 
+  group_by(Group, type, sa, la, wi) %>%
+  summarize(dimension_count = n(), total_count = sum(counts), 
+             biomass_total = sum(biomass)) 
+```
+```{r}
+chlor_dim_table <- volbio_all_no0[grepl("^Chloro", volbio_all_no0$Organism), ] %>% 
+  group_by(Group, type, sa, la, wi) %>%
+  summarize(dimension_count = n(), total_count = sum(counts), 
+            biomass_total = sum(biomass)) 
+```
+
+```{r}
+write_xlsx( chlor_dim_table, "/Users/allisonadams/Documents/Thesis/Microplankton/R Work/Size Classes/Chlor_Dim.xlsx")
+```
+
+
+

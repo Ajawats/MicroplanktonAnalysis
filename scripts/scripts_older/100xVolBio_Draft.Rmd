@@ -1,0 +1,155 @@
+---
+title: "100xVolBio_Draft"
+author: "Allison Adams"
+date: "6/16/2022"
+output: html_document
+---
+This is using a new raw data file, 100xRaw_R_Updated_06_16.xlsx, since I deleted several organism entries, see note in excel file. 
+
+This contains both the volume and the biomass calculations
+```{r}
+library(tidyverse)
+library(writexl)
+getwd()
+```
+Load the excel data file
+```{r}
+volbio100_draft <- read_csv("100xRaw_R_Updated_06_16.csv")
+```
+Convert to long format
+
+```{r}
+volbio_long <- pivot_longer(data = volbio100_draft,
+                             cols = c(8:67),
+                             names_to = "sample",
+                             values_to = "counts")
+```
+
+Rearrange the column orders using the select function, and then change the NAs to 0s using the mutate function.
+```{r}
+volbio_final <- mutate(volbio_long, counts = ifelse(is.na(counts), 0, counts)) %>% 
+  select(sample, Organism, Group, name, shp, sa, la, wi, counts)
+```
+
+Volume Equation Calculations: change the cone to cone1 so R won't run all the cones2 and cones
+
+```{r}
+volbio_fin_cn <- mutate(volbio_final, shp = ifelse(shp == "cone", "cone1", shp))
+```
+Run the volume function
+```{r}
+vol_func <- function(diameter, height, width, shape, counts) {
+  pi= 3.1415
+  volume = 0
+   if(grepl("cone1", shape, ignore.case = TRUE)){
+    volume = (pi/12) * diameter^2 * height
+   }
+  if(grepl("cones2", shape, ignore.case = TRUE)){
+    volume = 2*(pi/12) * diameter^2 * height
+  }
+   if(grepl("sph", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter^3
+   } 
+  if(grepl("prosph", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter^2 * height
+  }
+  if(grepl("cyl", shape, ignore.case = TRUE)){
+    volume = (pi/4) * diameter^2 * height
+  }
+  if(grepl("ellips", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter * height * width
+  }
+  if(grepl("recbox", shape, ignore.case = TRUE)){
+    volume = diameter * height * width
+  }
+  if(grepl("prisell", shape, ignore.case = TRUE)){
+    volume = (pi/4) * diameter * height * width
+  }
+  if(grepl("prispar", shape, ignore.case = TRUE)){
+    volume = 0.5 * diameter * height * width
+  }
+  if(volume == 0){
+    return(NA)
+  } else{
+    return(volume * counts)
+  }
+ }
+```
+
+Calculate volumes
+```{r}
+volbio_fin_cn2 <- rowwise(volbio_fin_cn) %>% 
+  mutate(volume = vol_func(diameter = sa, height = la, width = wi, shape = shp, counts = counts))
+```
+
+Add the biomass function
+```{r}
+biomass_func <- function(Group, volume) {
+  biomass = 0
+   if(grepl("ciliate", Group, ignore.case = TRUE)){
+    biomass = .23 * volume^.984
+  }
+   if(grepl("tintinnid", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+   }
+   if(grepl("chlorophyte", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+   }
+   if(grepl("diatom", Group, ignore.case = TRUE)){
+    biomass = .117 * volume^.881
+  }
+   if(grepl("dinoflagellate", Group, ignore.case = TRUE)){
+    biomass = .760 * volume^.819
+   }
+   if(grepl("flagellate", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+  }
+   if(grepl("ochrophyte", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+  }
+   if(grepl("unidentified", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+  }
+   if(grepl("cyanobacteria", Group, ignore.case = TRUE)){
+    biomass = .181 * volume
+  }
+  if(biomass == 0){
+    return(NA)
+  } else{
+    return(biomass)
+  }
+ }
+```
+
+Calculate Biomass  
+```{r}
+volbio_all <- rowwise(volbio_fin_cn2) %>% 
+  mutate(biomass = biomass_func(volume = volume, Group = Group))
+```
+
+Eliminate all the rows that have zero occurrences
+```{r}
+volbio_all_no0 <- volbio_all %>% 
+    rowwise() %>% 
+    filter(counts != 0)
+```
+
+Create the file as an excel document
+write_xlsx(outAll, "add filepath and name here.xlsx")
+```{r}
+#write_xlsx(volbio_all_no0, "/Users/allisonadams/Documents/Thesis/Microplankton/R Work/100x June 2022/VolBioAllNo0.xlsx")
+```
+
+Look at the data to see how I can group by size class. Try pivot_wider to see the distribution of organisms by station/sample
+Note: after looking at volbio_wide, this isn't as helpful as I expected for seeing organisms by size.
+
+```{r}
+volbio_wide <- pivot_wider(volbio_all_no0, names_from = Organism, values_from = biomass)
+```
+
+```{r}
+#write_xlsx(volbio_wide, "/Users/allisonadams/Documents/Thesis/Microplankton/R Work/100x June 2022/VolBioWide.xlsx")
+```
+
+
+
