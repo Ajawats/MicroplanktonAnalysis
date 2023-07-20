@@ -1,0 +1,3 @@
+load("/Users/allisonadams/Documents/Thesis/Microplankton/R Work/MicroplanktonAnalysis/data/Clearance Rates/Feeding Rates/diatomBio2.2.Rdata")
+load("/Users/allisonadams/Documents/Thesis/Microplankton/R Work/MicroplanktonAnalysis/data/Clearance Rates/Feeding Rates/sumAllCpm_fr.Rdata")
+load("/Users/allisonadams/Documents/Thesis/Microplankton/R Work/MicroplanktonAnalysis/data/Clearance Rates/Feeding Rates/IRbio_eventsOnly.Rdata")
