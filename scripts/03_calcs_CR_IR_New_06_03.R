@@ -795,8 +795,6 @@ save(CrIrCntMnTots2, file = "data7_24/Clearance Rates 2/CrIrCntMnTots2.Rdata")
 write_xlsx(CrIrCntMnTots2, "data7_24/Clearance Rates 2/CrIrCntMnTots2.xlsx")
 load("data7_24/Clearance Rates 2/CrIrCntMnTots2.Rdata")
 
-### Do a 
-
 
 ###########################################################################
 ### Total Biomass ingestion rate for all taxa groups together, and also for only 
