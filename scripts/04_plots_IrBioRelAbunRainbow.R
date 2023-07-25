@@ -33,21 +33,22 @@ ylab("Proportion of Whole")+
 
 
 ### Above is original from Odinga K on fiverr. Below are variations I made
-
+data <- IrTotAllTaxaKeptProp
 ### Using above, change colors and add Wim Graph
 # this didn't work for me:library(paletteer) 
 # this didn't work for me: library(basetheme)
 # this didn't work for me: paletteer_d("basetheme::brutal")
 source("scripts/01_function_wimGraph and Palettes.R")
-ggplot(data, aes(fill=Taxa.Group, y=PropIRbioUgC, x=event)) + 
+ggplot(data, aes(fill=group_size, y=PropIRbioUgC, x=event)) + 
   geom_bar(position="fill", stat="identity")+
-  scale_fill_manual(values = c("CenDiaLg" = "cadetblue", "CenDiaSm" = "cadetblue3", "CilLg" = "#FFCA99", "CilSm" = "#FFE5CC",
-                                "FlagLg" = "#85B22C", "FlagSm" = "#c3E57E", "PenDiaLg"= "#E57E7E", "PenDiaSm" = "#FFB2B2",
-                                "ChlSm" = "#CC8E51", "ChnDiaLg" = "mediumvioletred", "UnidLg" = "#6551CC", "UnidSm" = "mediumpurple1"),
+  scale_fill_manual(values = c("CenDiaLg" = "cornflowerblue", "CenDiaSm" = "lightskyblue", "CilLg" = "salmon3", "CilSm" = "salmon1",
+                                "FlagLg" = "#85B22C", "FlagSm" = "#c3E57E", "PenDiaLg"= "pink4", "PenDiaSm" = "pink3",
+                                "ChlSm" = "#CC8E51", "ChnDiaLg" = "peachpuff", "UnidLg" = "plum4", "UnidSm" = "plum2"),
                     limits = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm", "FlagLg", "PenDiaLg", "PenDiaSm",
-                               "ChnDiaLg", "ChlSm", "UnidLg", "UnidSm"))+
+                               "ChnDiaLg", "ChlSm", "UnidLg", "UnidSm"),
+                    name = "Taxa Group")+
   xlab(NULL)+
-  ylab("Relative Biomass Ingestion")+
+  ylab(NULL)+
   ggtitle("Taxa Group Relative Biomass Ingestion Rates")+
   theme(plot.title = element_text(hjust = 0.5),
         axis.title.y = element_text(size = 10),
