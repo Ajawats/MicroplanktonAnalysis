@@ -8,9 +8,13 @@
 ### neg CR IR
 ###########################################################################
 
+### 7/24/23 updated files to include the YBP1 centric diatom large exp rep 2 count to 1
+##  and created a new data folder data7_24 because I lost the data folder when I made a
+##  Git Hub repository.
+
 library(tidyverse)
 library(writexl)
-load("data/Clearance Rates 2/CrIrCntRepMnTots.Rdata") # accuracy check done
+load("data7_24/Clearance Rates 2/CrIrCntRepMnTots.Rdata") # accuracy check done
 ### this df above contains the clearance rate reps and means; biomass ingestion rate reps and means;
 ##  in pgC and µgC, counts per ml per row of event, taxa rep; total counts, same as previous; 
 ##  total counts of taxa across all events; mean clearance rate of each taxa group across all events,
@@ -24,16 +28,16 @@ IrMns <- subset(CrIrCntRepMnTots, select = c(event, group_size, FRUgMn))
 ### Remove the duplicates that are there as ghosts of the three replicates
 duplicated(IrMns)
 IrMns <- IrMns %>% distinct()
-write_xlsx(IrMns, "data/Clearance Rates 2/IrMns.xlsx")
+write_xlsx(IrMns, "data7_24/Clearance Rates 2/IrMns.xlsx")
 
 ### Calculate the total biomass FR Ug per copepod per day, X all events and taxa
 IrTot <- IrMns
 # note_ this is how Wim said to do it: sum(FRUgMn[FRUgMn >= 0 ]) 
 IrTotAll <- IrTot %>% 
   mutate(IrTotAllUgC = sum(FRUgMn[FRUgMn >= 0 ], na.rm = TRUE))
-save(IrTotAll, file = "data/Clearance Rates 2/IrTotAll.Rdata")
-write_xlsx(IrMnsTots, "data/Clearance Rates 2/IrTotAll.xlsx")
-load("data/Clearance Rates 2/IrTotAll.Rdata")
+save(IrTotAll, file = "data7_24/Clearance Rates 2/IrTotAll.Rdata")
+write_xlsx(IrMnsTots, "data7_24/Clearance Rates 2/IrTotAll.xlsx")
+load("data7_24/Clearance Rates 2/IrTotAll.Rdata")
 
 ### Remove the taxa groups that I'm excluding from reporting, per 6/14 notes: 
 ##   ChnDiaSm, DinoLg, CyanoLg, CyanoSm
@@ -76,19 +80,19 @@ IrTotAllTaxaKeptProp <- IrTotAllTaxaKeptProp %>%
   mutate(PropIrBuTaxaTot =  ifelse(IrTotUgCTaxa>=0, IrTotUgCTaxa/IrTotAllUgC, NA)) %>%
   ungroup
 
-save(IrTotAllTaxaKeptProp, file = "data/Clearance Rates 2/IrTotAllTaxaKeptProp.Rdata")
-write_xlsx(IrTotAllTaxaKeptProp, "data/Clearance Rates 2/IrTotAllTaxaKeptProp.xlsx")
+save(IrTotAllTaxaKeptProp, file = "data7_24/Clearance Rates 2/IrTotAllTaxaKeptProp.Rdata")
+write_xlsx(IrTotAllTaxaKeptProp, "data7_24/Clearance Rates 2/IrTotAllTaxaKeptProp.xlsx")
 
 ### Drop rows/taxa with NA IR
 IrTaxaPropNoNas <- IrTotAllTaxaKeptProp %>%
   drop_na(PropIRbioUgC)
 sum(IrTaxaPropNoNas$PropIRbioUgC, na.rm = TRUE)
-save(IrTaxaPropNoNas, file = "data/Clearance Rates 2/IrTaxaPropNoNas.Rdata")
-write_xlsx(IrTaxaPropNoNas, "data/Clearance Rates 2/IrTaxaPropNoNas.xlsx")
+save(IrTaxaPropNoNas, file = "data7_24/Clearance Rates 2/IrTaxaPropNoNas.Rdata")
+write_xlsx(IrTaxaPropNoNas, "data7_24/Clearance Rates 2/IrTaxaPropNoNas.xlsx")
 
 ### Plot the above, but maybe I need to plot with all the taxa, so that they all
 ##   appear on all event bars?
-load("data/Clearance Rates 2/IrTotAllTaxaKeptProp.Rdata")
+load("data7_24/Clearance Rates 2/IrTotAllTaxaKeptProp.Rdata")
 source("scripts/01_function_wimGraph and Palettes.R")
 xPalette <- wimPalettes("P")
 ggplot(IrTotAllTaxaKeptProp, aes(x = event, y = group_size, fill = PropIRbioUgC)) +
