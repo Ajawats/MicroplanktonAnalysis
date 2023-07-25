@@ -8,7 +8,8 @@ library(writexl)
 source("scripts/01_function_wimGraph and Palettes.R")
 source("scripts/01_function_wimGraph and Palettes.R")
 
-### I entered by hand the data from IrTotAllTaxaKeptProp.Rdata
+### I entered by hand the data from data7_24/Clearance Rates 2/IrTotAllTaxaKeptProp.Rdata,
+##  created in 03_calcs_Proportion of TotIR per Taxa.R
 
 ### For the proportion of IR bio that each event contributed to the total
 EventPropIR <- data.frame(Event = c("LSZ2", "SJR1", "SJR2", "WLD2", "YBP1", "YBP2"),
