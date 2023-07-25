@@ -18,7 +18,7 @@ library(writexl)
 ### 1/18/23  Added a while back the proportion of sample counted column. See the script,
 ## 02_dataclean_propCntd.R for the Rdata file with that data, to add to rawfinal_100 and 400.
 
-raw100 <- read_csv("data/MasterFiles/100x_RawCount_R.csv")
+raw100 <- read_csv("data7_24/MasterFiles/100x_RawCount_R.csv")
 
 #Convert to long format
 
@@ -35,7 +35,7 @@ raw100_fin <- mutate(raw100_long, counts = ifelse(is.na(counts), 0, counts)) %>%
   select(sample, Organism, Group, type, name, shp, sa, la, wi, counts)
 
 # Add the headers column to include the other data, see above for names
-headers_100 <- read_csv("data/MasterFiles/100xHeaders.csv")
+headers_100 <- read_csv("data7_24/MasterFiles/100xHeaders.csv")
 # join headers to raw100_fin
 raw100_fin_hd <- left_join(raw100_fin, headers_100, by = "sample")
 
@@ -89,13 +89,13 @@ raw100_final<- raw100_final %>%
   mutate(samp_date = as.Date(samp_date, format ="%m/%d/%y"))
 
 ### Add the proportion counted column
-load("data/MasterFiles/propCntd100_final.Rdata")
+load("data7_24/MasterFiles/propCntd100_final.Rdata")
 raw100_final <- cbind(raw100_final, propCntd100_final$propCntd ) %>% 
   rename("propCntd" = "propCntd100_final$propCntd")
 
-save(raw100_final, file = "data/MasterFiles/MasterRFiles/raw100_final.Rdata")
-write.csv(raw100_final, "data/MasterFiles/MasterRFiles/raw100_final.csv")
-write_xlsx(raw100_final, "data/MasterFiles/MasterRFiles/raw100_final.xlsx")
+save(raw100_final, file = "data7_24/MasterFiles/MasterRFiles/raw100_final.Rdata")
+write.csv(raw100_final, "data7_24/MasterFiles/MasterRFiles/raw100_final.csv")
+write_xlsx(raw100_final, "data7_24/MasterFiles/MasterRFiles/raw100_final.xlsx")
 
 
 ### 10/17/22 Test to see if obs. number is 952 if I take out the zero counts
@@ -109,7 +109,7 @@ write_xlsx(raw100_final, "data/MasterFiles/MasterRFiles/raw100_final.xlsx")
 #################### REPEAT THE ABOVE FOR THE 400X RAW COUNTS ##################
 ###############################################################################
 
-raw400 <- read_csv("data/MasterFiles/400x_RawCount_R.csv")
+raw400 <- read_csv("data7_24/MasterFiles/400x_RawCount_R.csv")
 
 #Convert to long format
 
@@ -126,7 +126,7 @@ raw400_fin <- mutate(raw400_long, counts = ifelse(is.na(counts), 0, counts)) %>%
   select(sample, Organism, Group, type, name, shp, sa, la, wi, counts)
 
 # Add the headers column to include the other data, see above for names
-headers_400 <- read_csv("data/MasterFiles/400xHeaders.csv")
+headers_400 <- read_csv("data7_24/MasterFiles/400xHeaders.csv")
 # join headers to raw400_fin
 raw400_fin_hd <- left_join(raw400_fin, headers_400, by = "sample")
 # Separate the sampling event names into three columns: sampling event, 
@@ -176,14 +176,14 @@ raw400_final<- raw400_final %>%
   mutate(samp_date = as.Date(samp_date, format ="%m/%d/%y"))
 
 ### Add the proportion counted column
-load("data/MasterFiles/propCntd400_final.Rdata")
+load("data7_24/MasterFiles/propCntd400_final.Rdata")
 raw400_final <- cbind(raw400_final, propCntd400_final$propCntd ) %>% 
   rename("propCntd" = "propCntd400_final$propCntd")
 
 
-save(raw400_final, file = "data/MasterFiles/MasterRFiles/raw400_final.Rdata")
-write_csv(raw400_final, "data/MasterFiles/MasterRFiles/raw400_final.csv")
-write_xlsx(raw400_final, "data/MasterFiles/MasterRFiles/raw400_final.xlsx")
+save(raw400_final, file = "data7_24/MasterFiles/MasterRFiles/raw400_final.Rdata")
+write_csv(raw400_final, "data7_24/MasterFiles/MasterRFiles/raw400_final.csv")
+write_xlsx(raw400_final, "data7_24/MasterFiles/MasterRFiles/raw400_final.xlsx")
 ### 10/17/22 Test to see if obs. number is 952 if I take out the zero counts
 ##  at this point instead of at the beginning like I did in 03_calcs_volume.R
 

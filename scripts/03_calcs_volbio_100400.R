@@ -2,6 +2,10 @@
 ############# JOIN 100x AND 400X VOLUME AND BIOMASS#################
 ####################################################################
 
+### 7/24/23 updated files to include the YBP1 centric diatom large exp rep 2 count to 1
+##  and created a new data folder data7_24 because I lost the data folder when I made a
+##  Git Hub repository.
+
 ### This file creates volbio_all and volbio_all_no0;has the volume and biomass 
 ##   calculations for all the  sampling events and includes all the organisms, 
 ##   including the ones that have zero counts in sampling events other than the ones I
@@ -16,11 +20,11 @@
 
 library(tidyverse)
 library(writexl)
-load("data/Clearance Rates/volbio_all_cr.Rdata")
+#load("data/Clearance Rates/volbio_all_cr.Rdata")
 ### Load the 100x and 400x volume/biomass data files. They were created in
 ##   03_calcs_biomass.R
-load("data/Calculations/volbio100.Rdata")
-load("data/Calculations/volbio400.Rdata")
+load("data7_24/Calculations/volbio100.Rdata")
+load("data7_24/Calculations/volbio400.Rdata")
 
 ### Join the two datasets
 volbio100400 <- bind_rows(volbio100, volbio400)
@@ -47,7 +51,7 @@ volbio_all <- volbio100400 %>%
 #Error in `dplyr_col_modify()`:
 #  ! Can't recycle `bio_pgC_ml` (size 15060) to size 19320.
 
-### Test by calculationg bio_pgC_ml with just volbio100 and volbio400
+### Test by calculating bio_pgC_ml with just volbio100 and volbio400
 
 volbio100_test <- volbio100 %>% 
   mutate(bio_pgC_ml = tot_biomass_pgC/(propCntd*pres_fact*vol_set_ml))
@@ -101,26 +105,26 @@ volbio_all <- volbio_all %>%
   mutate(size = case_when(esd < 15 ~ "small",
                           esd >= 15 ~ "large"))
 
-save(volbio_all, file = "data/MasterFiles/MasterRFiles/volbio_all.Rdata")
-write_xlsx(volbio_all, "data/MasterFiles/volbio_all.xlsx")
-write_csv(volbio_all, "data/MasterFiles/volbio_all.csv")
+save(volbio_all, file = "data7_24/MasterFiles/MasterRFiles/volbio_all.Rdata")
+write_xlsx(volbio_all, "data7_24/MasterFiles/volbio_all.xlsx")
+write_csv(volbio_all, "data7_24/MasterFiles/volbio_all.csv")
 
 na_rows <- volbio_all[!complete.cases(volbio_all$Group), ]
 
 ################ NO ZEROS ###################
-
-volbio_all_no0 <- volbio_all %>% 
-  rowwise() %>% 
-  filter(counts != 0)
-save(volbio_all_no0, file = "data/MasterFiles/MasterRFiles/volbio_all_no0.Rdata")
-write_xlsx(volbio_all_no0, "data/MasterFiles/volbio_all_no0.xlsx")
+### 7/24/23 Did not run the no-zero data, it's not needed
+#volbio_all_no0 <- volbio_all %>% 
+#  rowwise() %>% 
+#  filter(counts != 0)
+#save(volbio_all_no0, file = "data7_24/MasterFiles/MasterRFiles/volbio_all_no0.Rdata")
+#write_xlsx(volbio_all_no0, "data7_24/MasterFiles/volbio_all_no0.xlsx")
 
 ################################################################################# 
-#################### VOLBIO_ALL WITH EXPERIMENT NAME CHANGES #####################
+#################### VOLBIO_ALL WITH EXPERIMENT NAME CHANGES ####################
 #################################################################################
 
 ### Change T24 to E, FC to C, IC to I, site to S
-load("data/MasterFiles/MasterRFiles/volbio_all.Rdata")
+load("data7_24/MasterFiles/MasterRFiles/volbio_all.Rdata")
 volbio_all_cr <- volbio_all
 
 volbio_all_cr$exp <- replace(volbio_all_cr$exp,volbio_all_cr$exp=="T24","E")
@@ -137,12 +141,9 @@ volbio_all_cr$exp <- replace(volbio_all_cr$exp,volbio_all_cr$exp=="site","S")
 volbio_all_cr$Group <- replace(volbio_all_cr$Group,volbio_all_cr$Group=="tintinnid","ciliate")
 volbio_all_cr$type <- replace(volbio_all_cr$type,volbio_all_cr$type=="agglutinated","tintinnidAgg") 
 volbio_all_cr$type <- replace(volbio_all_cr$type,volbio_all_cr$type=="hyaline","tintinnidHya")
-save(volbio_all_cr, file = "data/Clearance Rates/volbio_all_cr.Rdata")
-
 
 ### Make centric diatoms their own category
 volbio_all_cr$Group[volbio_all_cr$Group == "diatom" & volbio_all_cr$type == "centric"] <- "centricDiatom"
-save(volbio_all_cr, file = "data/Clearance Rates/volbio_all_cr.Rdata")
 
 ### All other diatoms are changed to Group, "pennateDiatom", and keep their type category, except
 ##  for chain diatoms, which have their own category as of 4/23/23, since Wim told me they are
@@ -167,16 +168,13 @@ volbio_all_cr$type[volbio_all_cr$Group ==
                      "diatom cylindrotheca"] <- "cylindrotheca"
 volbio_all_cr$Group[volbio_all_cr$Group == 
                       "diatom cylindrotheca"] <- "pennateDiatom"
-save(volbio_all_cr, file = "data/Clearance Rates/volbio_all_cr.Rdata")
 
 ### Change Group "Ochrophyte" to flagellate
 volbio_all_cr$Group <- replace(volbio_all_cr$Group,volbio_all_cr$Group=="ochrophyte","flagellate")
-save(volbio_all_cr, file = "data/Clearance Rates/volbio_all_cr.Rdata")
 
 ### Reorder columns
 volbio_all_cr <- volbio_all_cr[, c(1,2,3,4,5,6,7,8,9,10,16,11,26,12,13,18,14,15,17,19,20,21,22,23,24,25,27,28,29,30)]
 volbio_all_cr <- volbio_all_cr[, c(1,2,3,4,5,6,7,8,9,10,13,11,12,14,15,19,16,17,18,20,21,22,23,24,25,26,27,28,29,30)]
-save(volbio_all_cr, file = "data/Clearance Rates/volbio_all_cr.Rdata")
 
 ### 4/11/23 Add the 16 group_size name abbreviations that combines the names of the 
 ##  group column and the size column
@@ -201,4 +199,4 @@ volbio_all_cr["group_size"][volbio_all_cr["group_size"] == "chainDiatom small"] 
 volbio_all_cr["group_size"][volbio_all_cr["group_size"] == "unidentified large"] <- "UnidLg"
 volbio_all_cr["group_size"][volbio_all_cr["group_size"] == "unidentified small"] <- "UnidSm"
 
-save(volbio_all_cr, file = "data/Clearance Rates/volbio_all_cr.Rdata")
+save(volbio_all_cr, file = "data7_24/Clearance Rates/volbio_all_cr.Rdata")

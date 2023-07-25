@@ -2,9 +2,14 @@
 ################## 100x AND 400X VOLUME AND BIOMASS#################
 ####################################################################
 
+### 7/24/23 updated files to include the YBP1 centric diatom large exp rep 2 count to 1
+##  and created a new data folder data7_24 because I lost the data folder when I made a
+##  Git Hub repository.
+
+
 ### Uses data files raw100_final and raw400_final 
-##  data/MasterRawData/MasterRFiles/raw100_final.Rdata
-##  data/MasterRawData/MasterRFiles/raw400_final.Rdata
+##  data7_24/MasterRawData/MasterRFiles/raw100_final.Rdata
+##  data7_24/MasterRawData/MasterRFiles/raw400_final.Rdata
 ## from 02_dataclean_100_400.R
 ##  separately to calculate volume and biomass, 
 ## but biomass has its own R script also
@@ -20,7 +25,7 @@ source("scripts/01_function_biomass.R")
 
 ################ FOR 100X ################
 ### Load the raw counts data, file created in 02_dataclean_100_400.R
-load("data/MasterFiles/MasterRFiles/raw100_final.Rdata")
+load("data7_24/MasterFiles/MasterRFiles/raw100_final.Rdata")
 
 ### Run the volume function
 ##  Volume function returns volume per cell in cubic micrometers (um^3), vol_per_cell_um3
@@ -32,16 +37,17 @@ vol100 <- rowwise(raw100_final) %>%
   mutate(tot_vol_um3 = vol_per_cell_um3*counts)
 
 ### Save the file as an R data file
-save(vol100, file = "data/Calculations/vol100.Rdata")
-write_xlsx(vol100, "data/Calculations/vol100.xlsx")
+save(vol100, file = "data7_24/Calculations/vol100.Rdata")
+write_xlsx(vol100, "data7_24/Calculations/vol100.xlsx")
 
+### 7/24/23 did not run the no zero count below. It's not needed
 ### Create a data frame that eliminates the zero count organisms
-vol100_no0 <- vol100 %>% 
-  rowwise() %>% 
-  filter(counts != 0)
+#vol100_no0 <- vol100 %>% 
+  #rowwise() %>% 
+ # filter(counts != 0)
 
-save(vol100_no0, file = "data/Calculations/vol100_no0.Rdata")
-write_xlsx(vol100_no0, "data/Calculations/vol100_no0.xlsx")
+#save(vol100_no0, file = "data7_24/Calculations/vol100_no0.Rdata")
+#write_xlsx(vol100_no0, "data7_24/Calculations/vol100_no0.xlsx")
 
 ### 10/17/22 Test to see if total obs. will change if I filter out the
 ##   rows where the volume is 0
@@ -54,7 +60,7 @@ write_xlsx(vol100_no0, "data/Calculations/vol100_no0.xlsx")
 
 ### Load the raw counts data, file created in 02_dataclean_100_400.R
 
-load("data/MasterFiles/MasterRFiles/raw400_final.Rdata")
+load("data7_24/MasterFiles/MasterRFiles/raw400_final.Rdata")
 ## Run the volume function
 # Also, add a column that calculates the volume per organism,
 # and rename the volume column to include units of micrograms cubed.
@@ -64,15 +70,16 @@ vol400 <- rowwise(raw400_final) %>%
   mutate(tot_vol_um3 = vol_per_cell_um3*counts)
 
 ### Save the file as an R data file
-save(vol400, file = "data/Calculations/vol400.Rdata")
-write_xlsx(vol400, "data/Calculations/vol400.xlsx")
+save(vol400, file = "data7_24/Calculations/vol400.Rdata")
+write_xlsx(vol400, "data7_24/Calculations/vol400.xlsx")
 
+### 7/24/23 did not run the no zero count below. It's not needed
 ### Create a data frame that eliminates the zero count organisms
-vol400_no0 <- vol400 %>% 
-  rowwise() %>% 
-  filter(counts != 0)
-save(vol400_no0, file = "data/Calculations/vol400_no0.Rdata")
-write_xlsx(vol400_no0, "data/Calculations/vol400_no0.xlsx")
+#vol400_no0 <- vol400 %>% 
+ # rowwise() %>% 
+#  filter(counts != 0)
+#save(vol400_no0, file = "data7_24/Calculations/vol400_no0.Rdata")
+#write_xlsx(vol400_no0, "data7_24/Calculations/vol400_no0.xlsx")
 
 ### 10/17/22 Test to see if total obs. will change if I filter out the
 ##   rows where the volume is 0

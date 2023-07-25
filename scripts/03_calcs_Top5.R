@@ -5,12 +5,12 @@
 ### 4/27/23
 ##  Use volbio_all_cr.Rdata to make a new taxa group df that lumps
 ##  together all the low IR bio taxa groups into "other"
-## The main groups will be ("CilLg", "CenDiaLg", "CilSm", "FlagSm", "CenDiaSm"
+## The main groups will be "CilLg", "CenDiaLg", "CilSm", "FlagSm", "CenDiaSm"
 
 ### Steps: make a copy of the column, "taxaGroup" so I can keep it
 ##  Rename the new one to taxaGroup
 ##  put PenDiaLg, CyanoLg, UnidSm, FlgLg, DinoLg, ChnDiaLg, UnidLg, 
-##  PenDiaSm, ChlSm, ChlLg, ShnDiaSm, CyanoSm in one taxa group called "Other"
+##  PenDiaSm, ChlSm, ChlLg, ChnDiaSm, CyanoSm in one taxa group called "Other"
 
 ### DFs created in this script:
 load("data/FinalAnalysis/baseTop5.Rdata")

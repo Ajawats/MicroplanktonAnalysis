@@ -3,21 +3,25 @@
 ###################### DON'T REPLACE NAS WITH ZEROS  #######################
 ############################################################################
 
+### 7/24/23 updated files to include the YBP1 centric diatom large exp rep 2 count to 1
+##  and created a new data folder data7_24 because I lost the data folder when I made a
+##  Git Hub repository.
+
 ### 6/2/23, + 6/7, + 6/8, + 6/9
 ### DFs created here:
-load("data/Clearance Rates 2/sumCpm_cr.Rdata") #Clearance Rates with reps and means
-load("data/Clearance Rates 2/sumCpm_CRmn.Rdata") # Clearance Rates means only
-load("data/Clearance Rates 2/IrCrBio_Rep_Mn.Rdata") # Clearance rates reps and means,
+load("data7_24/Clearance Rates 2/sumCpm_cr.Rdata") #Clearance Rates with reps and means
+load("data7_24/Clearance Rates 2/sumCpm_CRmn.Rdata") # Clearance Rates means only
+load("data7_24/Clearance Rates 2/IrCrBio_Rep_Mn.Rdata") # Clearance rates reps and means,
 ###  with ingestion rates, biomass, reps and means, pgC and µgC
-load("data/Clearance Rates 2/Feeding Rates/FRCells_Rep_Mn.Rdata") # Ingestion rates,
+load("data7_24/Clearance Rates 2/Feeding Rates/FRCells_Rep_Mn.Rdata") # Ingestion rates,
 ### cells, reps and means
-load("data/Clearance Rates 2/CR_IRbio_mn.Rdata") # Clearance rates and 
+load("data7_24/Clearance Rates 2/CR_IRbio_mn.Rdata") # Clearance rates and 
 ### ingestion rates, means only. This df keeps the NAs and NaNs.
-load("data/Clearance Rates 2/CrIrCntRepMn.Rdata") # Clearance rates, ingestion rates
+load("data7_24/Clearance Rates 2/CrIrCntRepMn.Rdata") # Clearance rates, ingestion rates
 ### ugC, reps and means, rep numbers, total counts, counts per ml
-load("data/Clearance Rates 2/CrIrCntRepMn_NAs.Rdata") # The above df, but with only
+load("data7_24/Clearance Rates 2/CrIrCntRepMn_NAs.Rdata") # The above df, but with only
 ### the taxa groups that had an NA CR.
-load("data/Clearance Rates 2/CrIrCntMnTots2.Rdata")
+load("data7_24/Clearance Rates 2/CrIrCntMnTots2.Rdata")
 
 ### Also, around line 700, some work with the NA CR taxa groups
 ### And around line 726, some work with total biomass per taxa groups,
@@ -43,15 +47,9 @@ load("data/Clearance Rates 2/CrIrCntMnTots2.Rdata")
 
 library(tidyverse)
 library(writexl)
-load("data/Clearance Rates/volbio_all_cr.Rdata")
+load("data7_24/Clearance Rates/volbio_all_cr.Rdata")
 source("scripts/01_function_clearanceRates.R")
 source("scripts/01_function_feedingRate.R")
-
-### Use new volbio_all_cr_new_07_18.csv as the source file, since it has the correction
-## of YBP1 CenDiaLg E rep 2, added count of 1 to the 14µm entry to correct the CR and IR
-##  according to discussion with Wim 7/15
-
-data <- read.csv("data/Clearance Rates/volbio_all_cr_new_07_18.csv")
 
 
 #load("data/Clearance Rates/Feeding Rates/FRBio_Rep_Mn.Rdata") #Ingestion Rates,
@@ -63,9 +61,9 @@ data <- read.csv("data/Clearance Rates/volbio_all_cr_new_07_18.csv")
 
 ### ____________  CREATE THE BASE DATA FRAME ___________________
 
-base <- data %>% 
+base <- volbio_all_cr %>% 
   select(samp_ev, exp, rep, esd, group_size, cpm, bio_pgC_ml)
-save(base, file = "data/Clearance Rates 2/base.Rdata")
+save(base, file = "data7_24/Clearance Rates 2/base.Rdata")
 
 ###### _________________CLEARANCE RATE _________________________###
 ##################################################################
@@ -129,20 +127,20 @@ sumCpmE_Cmn <- select(sumCpmE_Cmn,
 source("scripts/01_function_clearanceRates.R")
 sumCpm_cr <- rowwise(sumCpmE_Cmn) %>% 
   mutate(CRmlcd = cr_func(controlMnCt = Cmn, expCt = cpmE))
-save(sumCpm_cr, file = "data/Clearance Rates 2/sumCpm_cr.Rdata")
-write_xlsx(sumCpm_cr, "data/Clearance Rates 2/sumCpm_cr.xlsx")
-load("data/Clearance Rates 2/sumCpm_cr.Rdata")
+save(sumCpm_cr, file = "data7_24/Clearance Rates 2/sumCpm_cr.Rdata")
+write_xlsx(sumCpm_cr, "data7_24/Clearance Rates 2/sumCpm_cr.xlsx")
+load("data7_24/Clearance Rates 2/sumCpm_cr.Rdata")
 ### Extract the taxa groups with NA
 Cpm_cr_NA <- sumCpm_cr[rowSums(is.na(sumCpm_cr)) > 0,]
-write_xlsx(Cpm_cr_NA, "data/Clearance Rates 2/Cpm_cr_NA.xlsx")
+write_xlsx(Cpm_cr_NA, "data7_24/Clearance Rates 2/Cpm_cr_NA.xlsx")
 
 ###  Take the mean of the CR per taxa group (group_size)
 sumCpm_CRmn <- sumCpm_cr %>% 
   group_by(event, group_size) %>% 
   summarize(CrMNmlcd = mean(CRmlcd, na.rm = TRUE))
-write_xlsx(sumCpm_CRmn, "data/Clearance Rates 2/sumCpm_CRmn.xlsx")
-save(sumCpm_CRmn,file =  "data/Clearance Rates 2/sumCpm_CRmn.Rdata")
-load("data/Clearance Rates 2/sumCpm_CRmn.Rdata")
+write_xlsx(sumCpm_CRmn, "data7_24/Clearance Rates 2/sumCpm_CRmn.xlsx")
+save(sumCpm_CRmn,file =  "data7_24/Clearance Rates 2/sumCpm_CRmn.Rdata")
+load("data7_24/Clearance Rates 2/sumCpm_CRmn.Rdata")
 
 ### Take the mean of all the CR taxa group means across all sampling events
 ##  to get an overall CR of each taxa group as a whole.
@@ -152,17 +150,17 @@ sumCRmnTaxa <- sumCpm_CRmn %>%
             ## the means of the real numbers and ignore the NAs
             .groups = 'drop') %>% 
   as.data.frame()
-write_xlsx(sumCRmnTaxa, "data/Clearance Rates 2/sumCRmnTaxa.xlsx")
-save(sumCRmnTaxa, file = "data/Clearance Rates 2/sumCRmnTaxa.Rdata")
-load("data/Clearance Rates 2/sumCRmnTaxa.Rdata")
+write_xlsx(sumCRmnTaxa, "data7_24/Clearance Rates 2/sumCRmnTaxa.xlsx")
+save(sumCRmnTaxa, file = "data7_24/Clearance Rates 2/sumCRmnTaxa.Rdata")
+load("data7_24/Clearance Rates 2/sumCRmnTaxa.Rdata")
 ### Sum the CR means by sampling event, no taxa groups
 sumCRmnEventsOnly <- sumCpm_CRmn %>% 
   group_by(event) %>% 
   summarise(MeanCR = mean(CrMNmlcd, na.rm = TRUE),
             .groups = 'drop') %>% 
   as.data.frame()
-write_xlsx(sumCRmnEventsOnly, "data/Clearance Rates 2/sumCRmnEventsOnly.xlsx")
-save(sumCRmnEventsOnly, file = "data/Clearance Rates 2/sumCRmnEventsOnly.Rdata")
+write_xlsx(sumCRmnEventsOnly, "data7_24/Clearance Rates 2/sumCRmnEventsOnly.xlsx")
+save(sumCRmnEventsOnly, file = "data7_24/Clearance Rates 2/sumCRmnEventsOnly.Rdata")
 ### _________ Make a df that combines rep CR with mean CR_________________
 ###_______________________________________________________________________
 ### Use this to plot the CR means with the reps so I can see if the outliers
@@ -171,23 +169,23 @@ names(sumCpm_cr)
 names(sumCpm_CRmn)
 CR_Rep_Mn <- 	left_join(sumCpm_cr, sumCpm_CRmn, 
                         by = c("event", "group_size"))
-save(CR_Rep_Mn, file= "data/Clearance Rates 2/CR_Rep_Mn.Rdata")
-write_xlsx(CR_Rep_Mn, "data/Clearance Rates 2/CR_Rep_Mn.xlsx")
-load("data/Clearance Rates 2/CR_Rep_Mn.Rdata")
+save(CR_Rep_Mn, file= "data7_24/Clearance Rates 2/CR_Rep_Mn.Rdata")
+write_xlsx(CR_Rep_Mn, "data7_24/Clearance Rates 2/CR_Rep_Mn.xlsx")
+load("data7_24/Clearance Rates 2/CR_Rep_Mn.Rdata")
 
 ###### ###### ###### ###### 
 ###### Clearance Rate with taxa groups ordered in large and small grouping
 ###### ###### ###### ###### 
 
-load("data/Clearance Rates 2/sumCpm_CRmn.Rdata")
+load("data7_24/Clearance Rates 2/sumCpm_CRmn.Rdata")
 CR_Size <- sumCpm_CRmn %>% 
   mutate(group_size = factor(group_size,
                              levels=c("CenDiaLg", "ChlLg", "ChnDiaLg" ,"CilLg",
                                       "CyanoLg", "DinoLg", "FlagLg", "PenDiaLg", "UnidLg", 
                                       "CenDiaSm", "ChlSm", "ChnDiaSm", "CilSm", "CyanoSm", 
                                       "FlagSm", "PenDiaSm", "UnidSm" ))) 
-save(CR_Size, file = "data/Clearance Rates 2/CR_Size.Rdata")
-write_xlsx(CR_Size, "data/Clearance Rates 2/CR_Size.xlsx")
+save(CR_Size, file = "data7_24/Clearance Rates 2/CR_Size.Rdata")
+write_xlsx(CR_Size, "data7_24/Clearance Rates 2/CR_Size.xlsx")
 
 ### Need to take the mean of the CR per taxon across all events
 ## This is the same as sumCRmnAll
@@ -210,7 +208,7 @@ CR_allEvents <- CR_Size %>%
 
 ## Create the base data frame that has only the biomass, sum the bio_pgC_ml
 ## for all same-sized group_size organsims, per event, per exp, per rep
-load("data/Clearance Rates 2/base.Rdata")
+load("data7_24/Clearance Rates 2/base.Rdata")
 sumBpm <- base %>% 
   group_by(samp_ev, exp, rep, group_size) %>% 
   summarise(TotalBpm=sum(bio_pgC_ml),
@@ -237,7 +235,7 @@ sumBpm_Imn <- select(sumBpm_Imn,
                      group_size, ImnBpm)
 
 ### Join sumBpm_Imn with the df that has clearance rates, sumCpm_cr
-load("data/Clearance Rates 2/sumCpm_cr.Rdata")
+load("data7_24/Clearance Rates 2/sumCpm_cr.Rdata")
 sumBpm_cr_Imn <- 	left_join(sumCpm_cr, sumBpm_Imn, 
                             by = c("event", "group_size"))
 
@@ -254,9 +252,9 @@ sumBpm_FR <- rowwise(sumBpm_cr_Imn) %>%
 ### Rename the FR column to FRpgCmL so I remember it's in those units
 sumBpm_FR <- sumBpm_FR %>% 
   rename("FRpgCcd" = "FR")
-save(sumBpm_FR, file = "data/Clearance Rates 2/Feeding Rates/sumBpm_FR.Rdata")
-write_xlsx(sumBpm_FR, "data/Clearance Rates 2/Feeding Rates/sumBpm_FR.xlsx")
-load("data/Clearance Rates 2/Feeding Rates/sumBpm_FR.Rdata")
+save(sumBpm_FR, file = "data7_24/Clearance Rates 2/Feeding Rates/sumBpm_FR.Rdata")
+write_xlsx(sumBpm_FR, "data7_24/Clearance Rates 2/Feeding Rates/sumBpm_FR.xlsx")
+load("data7_24/Clearance Rates 2/Feeding Rates/sumBpm_FR.Rdata")
 
 ### Calculate the means across the groups and sizes
 BpmFRMn_GrpSz <- sumBpm_FR %>%
@@ -264,8 +262,8 @@ BpmFRMn_GrpSz <- sumBpm_FR %>%
   summarise(FRmnpgCcd = mean(FRpgCcd, na.rm = TRUE),
             .groups = 'drop') %>% 
   as.data.frame()
-save(BpmFRMn_GrpSz, file = "data/Clearance Rates 2/Feeding Rates/BpmFRMn_GrpSz.Rdata")
-write_xlsx(BpmFRMn_GrpSz, "data/Clearance Rates 2/Feeding Rates/BpmFRMn_GrpSz.xlsx")
+save(BpmFRMn_GrpSz, file = "data7_24/Clearance Rates 2/Feeding Rates/BpmFRMn_GrpSz.Rdata")
+write_xlsx(BpmFRMn_GrpSz, "data7_24/Clearance Rates 2/Feeding Rates/BpmFRMn_GrpSz.xlsx")
 
 ## Add a column with the conversion from pg to µg
 BugFRMn_GrpSz <- BpmFRMn_GrpSz %>% 
@@ -273,22 +271,22 @@ BugFRMn_GrpSz <- BpmFRMn_GrpSz %>%
   summarise(FRmnUgCcd = FRmnpgCcd/1000000,
             .groups = 'drop') %>% 
   as.data.frame() 
-save(BugFRMn_GrpSz, file = "data/Clearance Rates 2/Feeding Rates/BugFRMn_GrpSz.Rdata")
-write_xlsx(BugFRMn_GrpSz, "data/Clearance Rates 2/Feeding Rates/BugFRMn_GrpSz.xlsx")
-load("data/Clearance Rates 2/Feeding Rates/BugFRMn_GrpSz.Rdata")
+save(BugFRMn_GrpSz, file = "data7_24/Clearance Rates 2/Feeding Rates/BugFRMn_GrpSz.Rdata")
+write_xlsx(BugFRMn_GrpSz, "data7_24/Clearance Rates 2/Feeding Rates/BugFRMn_GrpSz.xlsx")
+load("data7_24/Clearance Rates 2/Feeding Rates/BugFRMn_GrpSz.Rdata")
 
 ### ______ Make a df that combines rep FR (biomass) with mean FR (biomass) ___________
 ###_______________________________________________________________________
 ### Use this to plot the FR means with the reps so I can see if the outliers
 ##  have one crazy FR that's pulling up or down the means
-load("data/Clearance Rates 2/Feeding Rates/BpmFRMn_GrpSz.Rdata")
-load("data/Clearance Rates 2/Feeding Rates/sumBpm_FR.Rdata")
+load("data7_24/Clearance Rates 2/Feeding Rates/BpmFRMn_GrpSz.Rdata")
+load("data7_24/Clearance Rates 2/Feeding Rates/sumBpm_FR.Rdata")
 names(sumBpm_FR)
 names(BpmFRMn_GrpSz)
 FRbpm_Rep_Mn <- 	left_join(sumBpm_FR, BpmFRMn_GrpSz, 
                            by = c("event", "group_size"))
-save(FRbpm_Rep_Mn, file= "data/Clearance Rates 2/Feeding Rates/FRbpm_Rep_Mn.Rdata")
-load("data/Clearance Rates 2/Feeding Rates/FRbpm_Rep_Mn.Rdata")
+save(FRbpm_Rep_Mn, file= "data7_24/Clearance Rates 2/Feeding Rates/FRbpm_Rep_Mn.Rdata")
+load("data7_24/Clearance Rates 2/Feeding Rates/FRbpm_Rep_Mn.Rdata")
 
 ### ______________ADD A COLUMN OF INGESTION RATE IN µg C per copepod per day________________
 ### for the means and the reps
@@ -307,9 +305,9 @@ FRBio_Rep_Mn <- FRBio_Rep_Mn %>%
 FRBio_Rep_Mn <- FRBio_Rep_Mn %>% 
   select(event, rep, group_size, CRmlcd, FRpgCcd, FRUgCcd, FRmnpgCcd, FRmnUgCcd)
 
-save(FRBio_Rep_Mn, file = "data/Clearance Rates 2/Feeding Rates/FRBio_Rep_Mn.Rdata")
-write_xlsx(FRBio_Rep_Mn, "data/Clearance Rates 2/Feeding Rates/FRBio_Rep_Mn.xlsx")
-load("data/Clearance Rates 2/Feeding Rates/FRBio_Rep_Mn.Rdata")
+save(FRBio_Rep_Mn, file = "data7_24/Clearance Rates 2/Feeding Rates/FRBio_Rep_Mn.Rdata")
+write_xlsx(FRBio_Rep_Mn, "data7_24/Clearance Rates 2/Feeding Rates/FRBio_Rep_Mn.xlsx")
+load("data7_24/Clearance Rates 2/Feeding Rates/FRBio_Rep_Mn.Rdata")
 
 ### Calculate the CR mean using the above df so I can then join it all together on one df
 ### Add the CR and CR means to the above df
@@ -323,9 +321,9 @@ IrCrBio_Rep_Mn <- IrCrBio_Rep_Mn %>%
   select(event, rep, group_size, cpmE, Cmn, CRmlcd = CRmlcd.x,
          CrMNmlcd, FRpgCcd, FRUgCcd, FRmnpgCcd, 
          FRmnUgCcd)
-save(IrCrBio_Rep_Mn, file = "data/Clearance Rates 2/IrCrBio_Rep_Mn.Rdata")
-write_xlsx(IrCrBio_Rep_Mn,"data/Clearance Rates 2/IrCrBio_Rep_Mn.xlsx")
-load("data/Clearance Rates 2/IrCrBio_Rep_Mn.Rdata")
+save(IrCrBio_Rep_Mn, file = "data7_24/Clearance Rates 2/IrCrBio_Rep_Mn.Rdata")
+write_xlsx(IrCrBio_Rep_Mn,"data7_24/Clearance Rates 2/IrCrBio_Rep_Mn.xlsx")
+load("data7_24/Clearance Rates 2/IrCrBio_Rep_Mn.Rdata")
 ################################################################################
 #_____________ Make a df of IR bio totals by sampling event ____________________
 ################################################################################
@@ -335,8 +333,8 @@ FRBio_EventMn <- FRBio_Rep_Mn %>%
   summarise(FRmnUgCcd = mean(FRmnUgCcd, na.rm = TRUE),
             .groups = 'drop') %>% 
   as.data.frame()
-save(FRBio_EventMn, file = "data/Clearance Rates 2/Feeding Rates/FRBio_EventMn.Rdata")
-write_xlsx(FRBio_EventMn,"data/Clearance Rates 2/Feeding Rates/FRBio_EventMn.xlsx")
+save(FRBio_EventMn, file = "data7_24/Clearance Rates 2/Feeding Rates/FRBio_EventMn.Rdata")
+write_xlsx(FRBio_EventMn,"data7_24/Clearance Rates 2/Feeding Rates/FRBio_EventMn.xlsx")
 
 ### Take the total FR of all Taxa groups in each sampling event
 ## Re-do this, because it's summing the three entries of the means, so tripling
@@ -357,8 +355,8 @@ FRBio_Taxa <- FRBio_Rep_Mn %>%
   summarise(FRmnUgCcd = mean(FRmnUgCcd, na.rm = TRUE),
             .groups = 'drop') %>% 
   as.data.frame()
-save(FRBio_Taxa, file = "data/Clearance Rates 2/Feeding Rates/FRBio_Taxa.Rdata")
-write_xlsx(FRBio_Taxa,"data/Clearance Rates 2/Feeding Rates/FRBio_Taxa.xlsx")
+save(FRBio_Taxa, file = "data7_24/Clearance Rates 2/Feeding Rates/FRBio_Taxa.Rdata")
+write_xlsx(FRBio_Taxa,"data7_24/Clearance Rates 2/Feeding Rates/FRBio_Taxa.xlsx")
 
 
 ################################################################################
@@ -366,26 +364,26 @@ write_xlsx(FRBio_Taxa,"data/Clearance Rates 2/Feeding Rates/FRBio_Taxa.xlsx")
 ################################################################################
 CR_IRbio_mn <- 	left_join(sumCpm_CRmn, BugFRMn_GrpSz, 
                           by = c("event", "group_size"))
-save(CR_IRbio_mn, file = "data/Clearance Rates 2/CR_IRbio_mn.Rdata")
-write_xlsx(CR_IRbio_mn, "data/Clearance Rates 2/CR_IRbio_mn.xlsx")
-load("data/Clearance Rates/CR_IRbio_mn.Rdata")
+save(CR_IRbio_mn, file = "data7_24/Clearance Rates 2/CR_IRbio_mn.Rdata")
+write_xlsx(CR_IRbio_mn, "data7_24/Clearance Rates 2/CR_IRbio_mn.xlsx")
+load("data7_24/Clearance Rates/CR_IRbio_mn.Rdata")
 ### This returns zeros where the NAs and NaNs were. Try to use merge and see what happens
 CR_IRbio_mn_test <- 	merge(sumCpm_CRmn, BugFRMn_GrpSz, 
                           by = c("event", "group_size"))
 ### Yes, "merge" keeps the NAs and NaNs.
 CR_IRbio_mn <- 	merge(sumCpm_CRmn, BugFRMn_GrpSz, 
                            by = c("event", "group_size"))
-save(CR_IRbio_mn, file = "data/Clearance Rates 2/CR_IRbio_mn.Rdata")
-write_xlsx(CR_IRbio_mn, "data/Clearance Rates 2/CR_IRbio_mn.xlsx")
-load("data/Clearance Rates 2/CR_IRbio_mn.Rdata")
+save(CR_IRbio_mn, file = "data7_24/Clearance Rates 2/CR_IRbio_mn.Rdata")
+write_xlsx(CR_IRbio_mn, "data7_24/Clearance Rates 2/CR_IRbio_mn.xlsx")
+load("data7_24/Clearance Rates 2/CR_IRbio_mn.Rdata")
 
 ### Look at the CR and IR means together of just the CR NA taxa
 CR_IRbio_mn_NAs <- CR_IRbio_mn %>%
   filter(group_size %in% c("ChlLg", "ChlSm", "ChnDiaLg", "ChnDiaSm", "CyanoLg",
                          "CyanoSm", "DinoLg", "FlagLg", "PenDiaLg", "UnidLg", 
                          "CenDiaLg"))
-save(CR_IRbio_mn_NAs, file = "data/Clearance Rates 2/CR_IRbio_mn_NAs.Rdata")
-write_xlsx(CR_IRbio_mn_NAs, "data/Clearance Rates 2/CR_IRbio_mn_NAs.xlsx")
+save(CR_IRbio_mn_NAs, file = "data7_24/Clearance Rates 2/CR_IRbio_mn_NAs.Rdata")
+write_xlsx(CR_IRbio_mn_NAs, "data7_24/Clearance Rates 2/CR_IRbio_mn_NAs.xlsx")
 
 ################################################################################
 ####_____________INGESTION (FEEDING) RATE BY CELLS (COUNTS, cpm) __________
@@ -407,7 +405,7 @@ sumCpm_Imn <- sumCpm_I %>%
 
 ### Join sumCpm_Imn with the df that has clearance rates, sumCpm_cr,
 ##  reorder columns so CR is the end column
-load("data/Clearance Rates 2/sumCpm_cr.Rdata")
+load("data7_24/Clearance Rates 2/sumCpm_cr.Rdata")
 names(sumCpm_cr)
 names(sumCpm_Imn)
 sumCpm_cr_fr <- 	left_join(sumCpm_cr, sumCpm_Imn, 
@@ -418,10 +416,10 @@ source("scripts/01_function_feedingRate.R")
 
 sumCpm_FR <- rowwise(sumCpm_cr_fr) %>% 
   mutate(FRCellsCd = fr_func(CR=CRmlcd, initialMnCt = Imn))
-save(sumCpm_FR, file = "data/Clearance Rates 2/Feeding Rates/sumCpm_FR.Rdata")
-write_xlsx(sumCpm_FR, "data/Clearance Rates 2/Feeding Rates/sumCpm_FR.xlsx")
+save(sumCpm_FR, file = "data7_24/Clearance Rates 2/Feeding Rates/sumCpm_FR.Rdata")
+write_xlsx(sumCpm_FR, "data7_24/Clearance Rates 2/Feeding Rates/sumCpm_FR.xlsx")
 
-load("data/Clearance Rates 2/Feeding Rates/sumCpm_FR.Rdata")
+load("data7_24/Clearance Rates 2/Feeding Rates/sumCpm_FR.Rdata")
 
 ### Take the mean FR for group and size, across the 3 reps, i.e., CenDiaLg in LSZ2
 CpmFRMn_GrpSz <- sumCpm_FR %>%
@@ -429,8 +427,8 @@ CpmFRMn_GrpSz <- sumCpm_FR %>%
   summarise(FRmnCellsCd = mean(FRCellsCd, na.rm = TRUE),
             .groups = 'drop') %>% 
   as.data.frame()
-save(CpmFRMn_GrpSz, file = "data/Clearance Rates 2/Feeding Rates/CpmFRMn_GrpSz.Rdata")
-load("data/Clearance Rates 2/Feeding Rates/CpmFRMn_GrpSz.Rdata")
+save(CpmFRMn_GrpSz, file = "data7_24/Clearance Rates 2/Feeding Rates/CpmFRMn_GrpSz.Rdata")
+load("data7_24/Clearance Rates 2/Feeding Rates/CpmFRMn_GrpSz.Rdata")
 
 
 ### ______ Make a df that combines rep FR (cells) with mean FR (cells) ___________
@@ -441,7 +439,7 @@ names(sumCpm_FR)
 names(CpmFRMn_GrpSz)
 FRCells_Rep_Mn <- 	left_join(sumCpm_FR, CpmFRMn_GrpSz, 
                              by = c("event", "group_size"))
-save(FRCells_Rep_Mn, file= "data/Clearance Rates 2/Feeding Rates/FRCells_Rep_Mn.Rdata")
+save(FRCells_Rep_Mn, file= "data7_24/Clearance Rates 2/Feeding Rates/FRCells_Rep_Mn.Rdata")
 
 ####################
 ########## Ingestion rate, cells, combined totals, events only #########
@@ -451,7 +449,7 @@ IRcells_eventsOnly <- CpmFRMn_GrpSz %>%
   summarise(IRcellsMn = mean(FRmnCellsCd, na.rm = TRUE,
             .groups = 'drop')) %>% 
   as.data.frame()
-load(IRcells_eventsOnly, file= "data/Clearance Rates 2/Feeding Rates/IRcells_eventsOnly.Rdata")
+load(IRcells_eventsOnly, file= "data7_24/Clearance Rates 2/Feeding Rates/IRcells_eventsOnly.Rdata")
 
 names(CpmFRMn_GrpSz)
 IRcells_Taxa <- CpmFRMn_GrpSz %>% 
@@ -459,8 +457,8 @@ IRcells_Taxa <- CpmFRMn_GrpSz %>%
   summarise(FRmnCellsCd = mean(FRmnCellsCd, na.rm = TRUE),
             .groups = 'drop') %>% 
   as.data.frame()
-save(IRcells_Taxa, file = "data/Clearance Rates 2/Feeding Rates/IRcells_Taxa.Rdata")
-write_xlsx(IRcells_Taxa,"data/Clearance Rates 2/Feeding Rates/IRcells_Taxa.xlsx")
+save(IRcells_Taxa, file = "data7_24/Clearance Rates 2/Feeding Rates/IRcells_Taxa.Rdata")
+write_xlsx(IRcells_Taxa,"data7_24/Clearance Rates 2/Feeding Rates/IRcells_Taxa.xlsx")
 
 ######### This is where I stopped 6/6/23 Below is pasted from 03_calcs_CR_FR.R
 
@@ -471,7 +469,7 @@ write_xlsx(IRcells_Taxa,"data/Clearance Rates 2/Feeding Rates/IRcells_Taxa.xlsx"
 ### Look at the chain diatom group_size to see what the numbers are like
 ChnDiaFRBio <- FRBio_Rep_Mn %>% 
   filter(group_size =="ChnDiaLg" | group_size =="ChnDiaSm")
-write_xlsx(ChnDiaFRBio, "data/Clearance Rates/Feeding Rates/ChnDiaFRBio.xlsx")
+write_xlsx(ChnDiaFRBio, "data7_24/Clearance Rates/Feeding Rates/ChnDiaFRBio.xlsx")
 
 a <- ggplot(data=ChnDiaFRBio, aes(event, FRmnUgCcd)) +
   geom_hline(yintercept=0, color="gray", linewidth=1) +
@@ -500,7 +498,7 @@ a
 ##  YBP2 (IRbio 0.07) and LSZ2 (IR bio 0.001)
 PenDiaIRbio <- BugFRMn_GrpSz %>% 
   filter(group_size == "PenDiaSm" | group_size == "PenDiaLg")
-write_xlsx(PenDiaIRbio, "data/Clearance Rates/Feeding Rates/PenDiaIRbio.xlsx")
+write_xlsx(PenDiaIRbio, "data7_24/Clearance Rates/Feeding Rates/PenDiaIRbio.xlsx")
 
 ### And CR pennates and chains
 PenDiaCR <- sumCpm_CRmn %>% 
@@ -510,9 +508,9 @@ PenDiaCR <- sumCpm_CRmn %>%
 ############### SORT BY SMALL AND LARGE GROUPS #####################
 #####################################################################
 ## Use these dfs:
-load("data/Clearance Rates/Feeding Rates/FRBio_Rep_Mn.Rdata") #Ingestion Rates,
+load("data7_24/Clearance Rates/Feeding Rates/FRBio_Rep_Mn.Rdata") #Ingestion Rates,
 ### biomass, reps and means, µg C and pg C
-load( "data/Clearance Rates/CR_IRbio_mn.Rdata") # Clearance Rates and Ingestion
+load( "data7_24/Clearance Rates/CR_IRbio_mn.Rdata") # Clearance Rates and Ingestion
 
 ### Ingestion Rates, biomass, Means only
 FR_bio_Size <- FRBio_Rep_Mn %>% 
@@ -521,35 +519,35 @@ FR_bio_Size <- FRBio_Rep_Mn %>%
                                       "CyanoLg", "DinoLg", "FlagLg", "PenDiaLg", "UnidLg", 
                                       "CenDiaSm", "ChlSm", "ChnDiaSm", "CilSm", "CyanoSm", 
                                       "FlagSm", "PenDiaSm", "UnidSm" ))) 
-save(FR_bio_Size, file = "data/Clearance Rates/Feeding Rates/FR_bio_Size.Rdata")
-write_xlsx(FR_bio_Size, "data/Clearance Rates/Feeding Rates/FR_bio_Size.xlsx")
+save(FR_bio_Size, file = "data7_24/Clearance Rates/Feeding Rates/FR_bio_Size.Rdata")
+write_xlsx(FR_bio_Size, "data7_24/Clearance Rates/Feeding Rates/FR_bio_Size.xlsx")
 ### Need to take the mean of the FRbio per taxon across all events
 FRbio_allEvents <- FR_bio_Size %>% 
   group_by(group_size) %>% 
   summarise(TotalFRbioMn = mean(FRmnUgCcd)) %>% 
   ungroup()
-save(FRbio_allEvents, file = "data/Clearance Rates/Feeding Rates/FRbio_allEvents.Rdata")
-write_xlsx(FRbio_allEvents, "data/Clearance Rates/Feeding Rates/FRbio_allEvents.xlsx")
+save(FRbio_allEvents, file = "data7_24/Clearance Rates/Feeding Rates/FRbio_allEvents.Rdata")
+write_xlsx(FRbio_allEvents, "data7_24/Clearance Rates/Feeding Rates/FRbio_allEvents.xlsx")
 ### See 04_plots_IR_Various.R for plotting it.
 
 ### Ingestion rates, cells, Means only
-load ("data/Clearance Rates/Feeding Rates/CpmFRMn_GrpSz.Rdata")
+load ("data7_24/Clearance Rates/Feeding Rates/CpmFRMn_GrpSz.Rdata")
 FR_cell_Size <- CpmFRMn_GrpSz %>% 
   mutate(group_size = factor(group_size,
                              levels=c("CenDiaLg", "ChlLg", "ChnDiaLg" ,"CilLg",
                                       "CyanoLg", "DinoLg", "FlagLg", "PenDiaLg", "UnidLg", 
                                       "CenDiaSm", "ChlSm", "ChnDiaSm", "CilSm", "CyanoSm", 
                                       "FlagSm", "PenDiaSm", "UnidSm" ))) 
-save(FR_cell_Size, file = "data/Clearance Rates/Feeding Rates/FR_cell_Size.Rdata")
-write_xlsx(FR_cell_Size, "data/Clearance Rates/Feeding Rates/FR_cell_Size.xlsx")
-load("data/Clearance Rates/Feeding Rates/FR_cell_Size.Rdata")
+save(FR_cell_Size, file = "data7_24/Clearance Rates/Feeding Rates/FR_cell_Size.Rdata")
+write_xlsx(FR_cell_Size, "data7_24/Clearance Rates/Feeding Rates/FR_cell_Size.xlsx")
+load("data7_24/Clearance Rates/Feeding Rates/FR_cell_Size.Rdata")
 
 ### Take the mean of the IR cells per taxon across all events
 IRcells_allEvents <- FR_cell_Size %>% 
   group_by(group_size) %>% 
   summarise(TotalIRcells = mean(FRmnCellsCd)) %>% 
   ungroup()
-save(IRcells_allEvents, file = "data/Clearance Rates/Feeding Rates/IRcells_allEvents.Rdata")
+save(IRcells_allEvents, file = "data7_24/Clearance Rates/Feeding Rates/IRcells_allEvents.Rdata")
 ### See 04_plots_IR_Various.R for plotting it.
 
 #####################################################################
@@ -559,7 +557,7 @@ save(IRcells_allEvents, file = "data/Clearance Rates/Feeding Rates/IRcells_allEv
 
 base <- data %>% 
   select(samp_ev, exp, rep, group_size, cpm, bio_pgC_ml)
-save(base, file = "data/Clearance Rates/base.Rdata")
+save(base, file = "data7_24/Clearance Rates/base.Rdata")
 
 sumBpm <- base %>% 
   group_by(samp_ev, group_size, exp, rep) %>% 
@@ -586,7 +584,7 @@ sumBpm_Imn <- select(sumBpm_Imn,
                      event = samp_ev, exp, group_size, ImnBpm)
 
 ### Join sumBpm_Imn with the df that has clearance rates, sumCpm_cr
-load("data/Clearance Rates/sumCpm_cr.Rdata")
+load("data7_24/Clearance Rates/sumCpm_cr.Rdata")
 sumBpm_cr_Imn <- 	left_join(sumCpm_cr, sumBpm_Imn, 
                             by = c("event", "group_size"))
 
@@ -617,7 +615,7 @@ IRbioTop5 <- IRbioTop5 %>%
 
 ### Add the mean CR and FR
 ### Filter to keep the top 5 in the CR IR mean df
-load("data/Clearance Rates/CR_IRbio_mn.Rdata")
+load("data7_24/Clearance Rates/CR_IRbio_mn.Rdata")
 Top5CR_IRbio_mn <-CR_IRbio_mn %>% 
   filter(group_size %in%  
            c("CilLg", "CenDiaLg", "CilSm", "FlagSm", "CenDiaSm")) 
@@ -626,9 +624,9 @@ IRbioCRTop5 <- IRbioTop5 %>%
   left_join(Top5CR_IRbio_mn, IRbioTop5,
             by = c("event", "group_size"))
 
-save(IRbioCRTop5, file = "data/Clearance Rates/Feeding Rates/IRbioCRTop5.Rdata")
-write_xlsx(IRbioCRTop5, "data/Clearance Rates/Feeding Rates/IRbioCRTop5.xlsx")
-load("data/Clearance Rates/Feeding Rates/IRbioCRTop5.Rdata")
+save(IRbioCRTop5, file = "data7_24/Clearance Rates/Feeding Rates/IRbioCRTop5.Rdata")
+write_xlsx(IRbioCRTop5, "data7_24/Clearance Rates/Feeding Rates/IRbioCRTop5.xlsx")
+load("data7_24/Clearance Rates/Feeding Rates/IRbioCRTop5.Rdata")
 
 ### 6/8/23 Determining a cut-off total count number so I can eliminate that
 ## taxa group from the analysis, also referring to the NA CR
@@ -643,10 +641,10 @@ NA_taxa <- CR_Rep_Mn %>%
   filter(group_size %in% c("ChlLg", "ChlSm", "ChnDiaLg", "ChnDiaSm", "CyanoLg",
                            "CyanoSm", "DinoLg", "FlagLg", "PenDiaLg", "UnidLg", 
                            "CenDiaLg"))
-write_xlsx(NA_taxa, "data/Clearance Rates 2/NA_taxa.xlsx")
+write_xlsx(NA_taxa, "data7_24/Clearance Rates 2/NA_taxa.xlsx")
 NA_taxa_withCounts <- left_join(NA_taxa, abun_NA_sums,
                                 by = "group_size")
-write_xlsx(NA_taxa_withCounts, "data/Clearance Rates 2/NA_taxa_withCounts.xlsx")
+write_xlsx(NA_taxa_withCounts, "data7_24/Clearance Rates 2/NA_taxa_withCounts.xlsx")
 
 ### Means of cells per mL
 #FrCpmOverall <- FrGrps %>%
@@ -677,9 +675,10 @@ IRbio_ugCMn <- IRbio_ugC %>%
 IRbio_ugCRepMn <- left_join(IRbio_ugC, IRbio_ugCMn)
 ### 2) Join the above to CR_Rep_Mn
 IRCRbioUg_Rep_Mn <- left_join(CR_Rep_Mn, IRbio_ugCRepMn)
+
 ### 3) Use abundanceI.Rdata to calculate the cpm and the total counts
 ## Total cpm
-load("data/Abundance/abundanceI.Rdata")
+load("data7_24/Abundance/abundanceI.Rdata")
 abunCpm_taxaGroup <- abundanceI %>% 
   group_by(samp_ev, rep, group_size) %>% 
   summarise(TotCpm = sum(cpm))
@@ -693,12 +692,12 @@ abunCounts_taxa <- abundanceI %>%
 abunCt_Cpm <- left_join(abunCpm_taxaGroup, abunCounts_taxa)
 abunCt_Cpm <- abunCt_Cpm %>% 
   rename(event = samp_ev)
-save(abunCt_Cpm, file = "data/Abundance/abunCt_Cpm.Rdata")
+save(abunCt_Cpm, file = "data7_24/Abundance/abunCt_Cpm.Rdata")
 ### 4)
 CrIrCntRepMn <- left_join(IRCRbioUg_Rep_Mn,abunCt_Cpm)
-save(CrIrCntRepMn, file = "data/Clearance Rates 2/CrIrCntRepMn.Rdata")
-write_xlsx(CrIrCntRepMn, "data/Clearance Rates 2/CrIrCntRepMn.xlsx")
-load("data/Clearance Rates 2/CrIrCntRepMn.Rdata")
+save(CrIrCntRepMn, file = "data7_24/Clearance Rates 2/CrIrCntRepMn.Rdata")
+write_xlsx(CrIrCntRepMn, "data7_24/Clearance Rates 2/CrIrCntRepMn.xlsx")
+load("data7_24/Clearance Rates 2/CrIrCntRepMn.Rdata")
 ### Add columns: one for total counts across all sampling events and
 CrIrCntRepMnTots <- CrIrCntRepMn %>% 
   group_by(group_size) %>% 
@@ -722,9 +721,9 @@ CrIrCntRepMnTots <- CrIrCntRepMnTots %>%
 #  mutate(TotIRbioUgCcd = sum(FRUgCcd, na.rm = TRUE)) %>% 
  # select(-TotIRbio)
 
-save(CrIrCntRepMnTots, file = "data/Clearance Rates 2/CrIrCntRepMnTots.Rdata")
-write_xlsx(CrIrCntRepMnTots, "data/Clearance Rates 2/CrIrCntRepMnTots.xlsx")
-load("data/Clearance Rates 2/CrIrCntRepMnTots.Rdata")
+save(CrIrCntRepMnTots, file = "data7_24/Clearance Rates 2/CrIrCntRepMnTots.Rdata")
+write_xlsx(CrIrCntRepMnTots, "data7_24/Clearance Rates 2/CrIrCntRepMnTots.xlsx")
+load("data7_24/Clearance Rates 2/CrIrCntRepMnTots.Rdata")
 
 ### Compare the mean CR calculated above, for each taxa group across all sampling events,
 ## calculated by taking the mean CR of all the mean CR
@@ -734,27 +733,27 @@ CrIrCntRepMn_NAs <- CrIrCntRepMn %>%
   filter(group_size %in% c("ChlLg", "ChlSm", "ChnDiaLg", "ChnDiaSm", "CyanoLg",
                            "CyanoSm", "DinoLg", "FlagLg", "PenDiaLg", "UnidLg", 
                            "CenDiaLg"))
-save(CrIrCntRepMn_NAs, file = "data/Clearance Rates 2/CrIrCntRepMn_NAs.Rdata")
-write_xlsx(CrIrCntRepMn_NAs, "data/Clearance Rates 2/CrIrCntRepMn_NAs.xlsx")
-load("data/Clearance Rates 2/CrIrCntRepMn_NAs.Rdata")
+save(CrIrCntRepMn_NAs, file = "data7_24/Clearance Rates 2/CrIrCntRepMn_NAs.Rdata")
+write_xlsx(CrIrCntRepMn_NAs, "data7_24/Clearance Rates 2/CrIrCntRepMn_NAs.xlsx")
+load("data7_24/Clearance Rates 2/CrIrCntRepMn_NAs.Rdata")
 
 ### Make a version of CrIrCntRepMnTots with just the CR NA taxa groups
 CrIrCntRepMnTots_NAs <- CrIrCntRepMnTots %>% 
   filter(group_size %in% c("ChlLg", "ChlSm", "ChnDiaLg", "ChnDiaSm", "CyanoLg",
                            "CyanoSm", "DinoLg", "FlagLg", "PenDiaLg", "UnidLg", 
                            "CenDiaLg"))
-save(CrIrCntRepMnTots_NAs, file = "data/Clearance Rates 2/CrIrCntRepMnTots_NAs.Rdata")
-write_xlsx(CrIrCntRepMnTots_NAs, "data/Clearance Rates 2/CrIrCntRepMnTots_NAs.xlsx")
-load("data/Clearance Rates 2/CrIrCntRepMnTots_NAs.Rdata")
+save(CrIrCntRepMnTots_NAs, file = "data7_24/Clearance Rates 2/CrIrCntRepMnTots_NAs.Rdata")
+write_xlsx(CrIrCntRepMnTots_NAs, "data7_24/Clearance Rates 2/CrIrCntRepMnTots_NAs.xlsx")
+load("data7_24/Clearance Rates 2/CrIrCntRepMnTots_NAs.Rdata")
 
 ### Make a version of CrIrCntRepMnTots with only the positive CR groups, and
 ##  without the CR NA taxa groups
 CrIrCntRepMnTots_noNAs <- CrIrCntRepMnTots %>% 
   filter(group_size %in% c("CenDiaSm", "CilLg", "CilSm", "FlagSm", 
                            "PenDiaSm", "UnidSm"))
-save(CrIrCntRepMnTots_noNAs, file = "data/Clearance Rates 2/CrIrCntRepMnTots_noAs.Rdata")
-write_xlsx(CrIrCntRepMnTots_noNAs, "data/Clearance Rates 2/CrIrCntRepMnTots_noNAs.xlsx")
-load("data/Clearance Rates 2/CrIrCntRepMnTots_noNAs.Rdata")
+save(CrIrCntRepMnTots_noNAs, file = "data7_24/Clearance Rates 2/CrIrCntRepMnTots_noAs.Rdata")
+write_xlsx(CrIrCntRepMnTots_noNAs, "data7_24/Clearance Rates 2/CrIrCntRepMnTots_noNAs.xlsx")
+load("data7_24/Clearance Rates 2/CrIrCntRepMnTots_noNAs.Rdata")
 
 ### Create a version of CrIrCntRepMnTots without the reps, i.e., with the mean cpmE,
 ## total abundance, mean CR and mean IRbio. Need to take the mean of cpmE
@@ -792,9 +791,9 @@ CrIrCntMnTots2 <- subset(CrIrCntMnTots2, select = -c(TotCt, TotCpm))
 ##  that has all the means
 duplicated(CrIrCntMnTots2)
 CrIrCntMnTots2 <- CrIrCntMnTots2 %>% distinct()
-save(CrIrCntMnTots2, file = "data/Clearance Rates 2/CrIrCntMnTots2.Rdata")
-write_xlsx(CrIrCntMnTots2, "data/Clearance Rates 2/CrIrCntMnTots2.xlsx")
-load("data/Clearance Rates 2/CrIrCntMnTots2.Rdata")
+save(CrIrCntMnTots2, file = "data7_24/Clearance Rates 2/CrIrCntMnTots2.Rdata")
+write_xlsx(CrIrCntMnTots2, "data7_24/Clearance Rates 2/CrIrCntMnTots2.xlsx")
+load("data7_24/Clearance Rates 2/CrIrCntMnTots2.Rdata")
 
 ### Do a 
 
@@ -806,7 +805,7 @@ load("data/Clearance Rates 2/CrIrCntMnTots2.Rdata")
 ###########################################################################
 
 ### Create the base data frame
-load("data/Clearance Rates 2/CR_IRbio_mn.Rdata")
+load("data7_24/Clearance Rates 2/CR_IRbio_mn.Rdata")
 IrTotalsByTaxa <- CR_IRbio_mn %>% 
   group_by(group_size) %>% 
   summarise(IrAllTotalugCcd = sum(FRmnUgCcd)) %>% 
@@ -816,19 +815,19 @@ IrTotalsByTaxa <- CR_IRbio_mn %>%
 IrTotalsByTaxaKept <- IrTotalsByTaxa %>% 
   filter(group_size %in% c("CenDiaLg","CenDiaSm", "CilLg", "CilSm", "FlagSm", "ChnDiaLg",
                            "FlagLg", "PenDiaLg", "PenDiaSm", "UnidSm"))
-load("data/Clearance Rates 2/IrCrBio_Rep_Mn.Rdata")
+load("data7_24/Clearance Rates 2/IrCrBio_Rep_Mn.Rdata")
 
 IRbioRepMnTotByTaxa <- left_join(IrCrBio_Rep_Mn, IrTotalsByTaxa)
-save(IRbioRepMnTotByTaxa, file = "data/Clearance Rates 2/IRbioRepMnTotByTaxa.Rdata")
-write_xlsx(IRbioRepMnTotByTaxa, "data/Clearance Rates 2/IRbioRepMnTotByTaxa.xlsx")
+save(IRbioRepMnTotByTaxa, file = "data7_24/Clearance Rates 2/IRbioRepMnTotByTaxa.Rdata")
+write_xlsx(IRbioRepMnTotByTaxa, "data7_24/Clearance Rates 2/IRbioRepMnTotByTaxa.xlsx")
 
 ### Calculate the proportion that each taxa contributes to the whole by dividing
 ##  it by the total biomass IR
 
 IrBio_TaxaProp <- IRbioRepMnTotByTaxa %>% 
   mutate(BugCprop = FRmnUgCcd/IrAllTotalugCcd)
-save(IrBio_TaxaProp, file = "data/Clearance Rates 2/IrBio_TaxaProp.Rdata")
-write_xlsx(IrBio_TaxaProp, "data/Clearance Rates 2/IrBio_TaxaProp.xlsx")
+save(IrBio_TaxaProp, file = "data7_24/Clearance Rates 2/IrBio_TaxaProp.Rdata")
+write_xlsx(IrBio_TaxaProp, "data7_24/Clearance Rates 2/IrBio_TaxaProp.xlsx")
 
 ### Do the same as above but remove the taxa I'm exlcuding
 ##  1) Use IRbioRepMnTotByTaxa to make a df with only the kept taxa
@@ -867,8 +866,8 @@ TotCountAllTaxa <- baseTotBioAllTaxa %>%
   summarise(TotCounts = sum(counts)) %>% 
   ungroup()
 TotBioCtAllTaxa <- left_join(TotBioAllTaxa, TotCountAllTaxa)
-save(TotBioCtAllTaxa, file = "data/Biomass Analysis 06_13/TotBioCtAllTaxa.Rdata")
-write_xlsx(TotBioCtAllTaxa, "data/Biomass Analysis 06_13/TotBioCtAllTaxa.xlsx")
+save(TotBioCtAllTaxa, file = "data7_24/Biomass Analysis 06_13/TotBioCtAllTaxa.Rdata")
+write_xlsx(TotBioCtAllTaxa, "data7_24/Biomass Analysis 06_13/TotBioCtAllTaxa.xlsx")
 
 TotBioKeptTaxa <- baseTotBioKeptTaxa %>% 
   group_by(group_size) %>% 
@@ -879,6 +878,6 @@ TotCountKeptTaxa <- baseTotBioKeptTaxa %>%
   summarise(TotCounts = sum(counts)) %>% 
   ungroup()
 TotBioCtKeptTaxa <- left_join(TotBioKeptTaxa, TotCountKeptTaxa)
-save(TotBioCtKeptTaxa, file = "data/Biomass Analysis 06_13/TotBioCtKeptTaxa.Rdata")
-write_xlsx(TotBioCtKeptTaxa, "data/Biomass Analysis 06_13/TotBioCtKeptTaxa.xlsx")
+save(TotBioCtKeptTaxa, file = "data7_24/Biomass Analysis 06_13/TotBioCtKeptTaxa.Rdata")
+write_xlsx(TotBioCtKeptTaxa, "data7_24/Biomass Analysis 06_13/TotBioCtKeptTaxa.xlsx")
 
