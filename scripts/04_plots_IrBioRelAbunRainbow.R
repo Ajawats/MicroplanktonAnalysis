@@ -55,8 +55,9 @@ ggplot(data, aes(fill=group_size, y=PropIRbioUgC, x=event)) +
         axis.text.y = element_text(size = 6))+
   wimGraph()
 
-### Plot with Top 5 and Other categories
-ggplot(Top5CR_IRbio_mn, aes(fill=Taxa.Group, y=PropIRbioUgC, x=event)) + 
+### Plot with Top 5 and Other categories, use IrBioTop5other.Rdata from 
+##  03_calcs_Proportion of TotIR per Taxa.Rdata
+ggplot(IrBioTop5other, aes(fill=Taxa.Group, y=PropIRbioUgC, x=event)) + 
   geom_bar(position="fill", stat="identity")+
   scale_fill_manual(values = c("CenDiaLg" = "cadetblue", "CenDiaSm" = "cadetblue3", "CilLg" = "#FFCA99", "CilSm" = "#FFE5CC",
                                "FlagLg" = "#85B22C", "FlagSm" = "#c3E57E", "PenDiaLg"= "#E57E7E", "PenDiaSm" = "#FFB2B2",

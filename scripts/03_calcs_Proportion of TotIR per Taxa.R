@@ -112,6 +112,27 @@ IrBioPropEvents <- IrTotAllTaxaKeptProp %>%
   group_by(event) %>% 
   mutate()
 
+### 7/26/23
+### Use IrTotAllTaxaKeptProp to make the top 5 groupings, and use the IR bio totals, not means of means
+baseTop5kept <- IrTotAllTaxaKeptProp %>% 
+  mutate(taxaGroup = group_size)
+
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "ChlLg"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "ChlSm"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "FlagLg"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "PenDiaLg"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "PenDiaSm"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "ChnDiaLg"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "UnidLg"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "UnidSm"] <- "Other"
+
+### Sum the FRUgMn according to the Top 5 and other. Top 5 taxa groups are already dont
+##  Just need to combine the "Other" FRUgMn into one.
+
+IrBioTop5other <- baseTop5kept %>%
+  group_by(taxaGroup) %>% 
+  mutate(FRtotTop5o = sum(FRUgMn, na.rm = TRUE))
+
 
 
 
