@@ -1,7 +1,7 @@
 ####################################################################
 ########### NEW TAXA GROUPS WITH LOW IR LUMPED AS "OTHER"###########
 ####################################################################
-
+### 7/27/23
 ### 7/26/23 Use the below code to re-calculate the top 5 + other taxa groups
 ##  with IrTotAllTaxaKept.Rdata, created in 03-calcs_Proprotion of Tot IR per Taxa.R
 ##  because it has all the data and rates calculated for only the taxa groups
