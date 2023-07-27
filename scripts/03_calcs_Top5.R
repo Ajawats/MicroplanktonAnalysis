@@ -2,6 +2,28 @@
 ########### NEW TAXA GROUPS WITH LOW IR LUMPED AS "OTHER"###########
 ####################################################################
 
+### 7/26/23 Use the below code to re-calculate the top 5 + other taxa groups
+##  with IrTotAllTaxaKept.Rdata, created in 03-calcs_Proprotion of Tot IR per Taxa.R
+##  because it has all the data and rates calculated for only the taxa groups
+##  that I am keeping, which excludes ChnDiaSm, DinoLg, CyanoLg, CyanoSm.
+
+### Updated 7/19 with the new volbio that has the YBP1 CenDiaLg E count rep 2 corrected
+load("data7_24/Clearance Rates 2/IrTotAllTaxaKeptProp.Rdata")
+
+baseTop5kept <- IrTotAllTaxaKeptProp %>% 
+  mutate(taxaGroup = group_size)
+
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "ChlLg"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "ChlSm"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "FlagLg"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "PenDiaLg"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "PenDiaSm"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "ChnDiaLg"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "UnidLg"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "UnidSm"] <- "Other"
+
+save(baseTop5kept, file = "data7_24/FinalAnalysis/baseTop5kept.Rdata")
+
 ### 4/27/23
 ##  Use volbio_all_cr.Rdata to make a new taxa group df that lumps
 ##  together all the low IR bio taxa groups into "other"
@@ -13,7 +35,7 @@
 ##  PenDiaSm, ChlSm, ChlLg, ChnDiaSm, CyanoSm in one taxa group called "Other"
 
 ### DFs created in this script:
-load("data/FinalAnalysis/baseTop5.Rdata")
+load("data7_24/FinalAnalysis/baseTop5.Rdata")
 
 ### Updated 7/19 with the new volbio that has the YBP1 CenDiaLg E count rep 2 corrected
 data <- read.csv("data/Clearance Rates/volbio_all_cr_new_07_18.csv")

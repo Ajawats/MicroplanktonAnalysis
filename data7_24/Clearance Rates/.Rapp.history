@@ -1,0 +1,2 @@
+load("/Users/allisonadams/Documents/Thesis/Microplankton/R Work/MicroplanktonAnalysis/data/Clearance Rates/sumAllCpm_cr.Rdata")
+load("/Users/allisonadams/Documents/Thesis/Microplankton/R Work/MicroplanktonAnalysis/data/Clearance Rates/cr_cpm_mn.Rdata")

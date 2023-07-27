@@ -1,0 +1,230 @@
+---
+title: "400x_VolBio"
+author: "Allison Adams"
+date: "6/23/2022"
+output: html_document
+---
+
+This file is for calculating volume and biomass of the 400x raw counts and includes code for creating files filtered by individual organism groups, sucha as chlorophytes, ciliates, diatoms, etc.
+
+See 400x_VolBio2.R for the file that has only the volume and biomass code.
+
+This contains both the volume and the biomass calculations
+```{r}
+library(tidyverse)
+library(writexl)
+getwd()
+```
+Load the excel csv data file
+```{r}
+raw400 <- read_csv("400x_RawCount_R.csv")
+```
+Convert to long format
+
+```{r}
+raw400_long <- pivot_longer(data = raw400,
+                             cols = c(9:68),
+                             names_to = "sample",
+                             values_to = "counts")
+```
+
+Rearrange the column orders to have the station/sample column first, using the select function, and then change the NAs to 0s using the mutate function.
+```{r}
+raw400_fin <- mutate(raw400_long, counts = ifelse(is.na(counts), 0, counts)) %>% 
+  select(sample, Organism, Group, type, name, shp, sa, la, wi, counts)
+```
+
+Run the volume function
+```{r}
+vol_func <- function(diameter, height, width, shape, counts) {
+  pi= 3.1415
+  volume = 0
+   if(grepl("cone1", shape, ignore.case = TRUE)){
+    volume = (pi/12) * diameter^2 * height
+   }
+  if(grepl("cones2", shape, ignore.case = TRUE)){
+    volume = 2*(pi/12) * diameter^2 * height
+  }
+   if(grepl("sph", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter^3
+   } 
+  if(grepl("prosph", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter^2 * height
+  }
+  if(grepl("cyl", shape, ignore.case = TRUE)){
+    volume = (pi/4) * diameter^2 * height
+  }
+  if(grepl("ellips", shape, ignore.case = TRUE)){
+    volume = (pi/6) * diameter * height * width
+  }
+  if(grepl("recbox", shape, ignore.case = TRUE)){
+    volume = diameter * height * width
+  }
+  if(grepl("prisell", shape, ignore.case = TRUE)){
+    volume = (pi/4) * diameter * height * width
+  }
+  if(grepl("prispar", shape, ignore.case = TRUE)){
+    volume = 0.5 * diameter * height * width
+  }
+  if(volume == 0){
+    return(NA)
+  } else{
+    return(volume * counts)
+  }
+ }
+```
+
+Calculate volumes
+```{r}
+vol400 <- rowwise(raw400_fin) %>% 
+  mutate(volume = vol_func(diameter = sa, height = la, width = wi, shape = shp, counts = counts))
+```
+
+If you want to add a column that just calculates volume of one organism and not mulitplying it by the counts, see the file 100x_Corrected_06_17 in the 100x June 2022 file.
+
+Add the biomass function
+```{r}
+biomass_func <- function(Group, volume) {
+  biomass = 0
+   if(grepl("ciliate", Group, ignore.case = TRUE)){
+    biomass = .23 * volume^.984
+  }
+   if(grepl("tintinnid", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+   }
+   if(grepl("chlorophyte", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+   }
+   if(grepl("diatom", Group, ignore.case = TRUE)){
+    biomass = .117 * volume^.881
+  }
+   if(grepl("dinoflagellate", Group, ignore.case = TRUE)){
+    biomass = .760 * volume^.819
+   }
+   if(grepl("flagellate", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+  }
+   if(grepl("ochrophyte", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+  }
+   if(grepl("unidentified", Group, ignore.case = TRUE)){
+    biomass = .216 * volume^.939
+  }
+   if(grepl("cyanobacteria", Group, ignore.case = TRUE)){
+    biomass = .181 * volume
+  }
+  if(biomass == 0){
+    return(NA)
+  } else{
+    return(biomass)
+  }
+ }
+```
+
+Calculate Biomass  
+```{r}
+bio400 <- rowwise(vol400) %>% 
+  mutate(biomass = biomass_func(volume = volume, Group = Group))
+```
+
+Eliminate all the rows that have zero occurrences
+```{r}
+bio400_no0 <- bio400 %>% 
+    rowwise() %>% 
+    filter(counts != 0)
+```
+
+Create the file as an excel document
+write_xlsx(outAll, "add filepath and name here.xlsx")
+```{r}
+#write_xlsx(bio400_no0, "/Users/allisonadams/Documents/Thesis/Microplankton/R Work/400x June 2022/Bio400_no0.xlsx")
+```
+
+Look at the data to see how I can group by size class.
+
+First get a list of all the groups in 400x.
+```{r}
+unique(bio400_no0$Group)
+```
+If you want to do pivot wider, here's the temmplate:
+volbio_wide <- pivot_wider(volbio_all_no0, names_from = Organism, values_from = biomass)
+
+This below is for finding out ways to select the data by "type" so I can look at the sizes and choose what size classes to create to group the organsim types by. See the Dimensions Summaries.R file in 100x_Corrected _06_17 for more details and notes, but I'll do the 400x type analyis here instead of making a separate R file.
+
+## Chlorophytes
+```{r}
+chlor4_dim_table <- filter(bio400_no0, grepl("^Chloro", Organism)) %>% 
+  group_by(Group, type, sa, la, wi) %>%
+  summarize(dimension_count = n(), total_count = sum(counts), 
+            biomass_total = sum(biomass)) %>% 
+  ungroup()
+```
+```{r}
+write_xlsx( chlor4_dim_table, "/Users/allisonadams/Documents/Thesis/Microplankton/R Work/400x June 2022/400x Size Classes/Chlor4_Dim.xlsx")
+```
+
+Ciliates
+```{r}
+cil4_dim_table <- filter(bio400_no0, grepl("^Ciliate", Organism)) %>% 
+  group_by(Group, type, sa, la, wi) %>%
+  summarize(dimension_count = n(), total_count = sum(counts), 
+            biomass_total = sum(biomass)) %>% 
+  ungroup()
+```
+```{r}
+write_xlsx( cil4_dim_table, "/Users/allisonadams/Documents/Thesis/Microplankton/R Work/400x June 2022/400x Size Classes/Cil4_Dim.xlsx")
+```
+
+Cyanobacteria
+```{r}
+cyano4_dim_table <- filter(bio400_no0, grepl("^Cyanobacteria", Organism)) %>% 
+  group_by(Group, type, sa, la, wi) %>%
+  summarize(dimension_count = n(), total_count = sum(counts), 
+            biomass_total = sum(biomass)) %>% 
+  ungroup()
+```
+```{r}
+write_xlsx( cyano4_dim_table, "/Users/allisonadams/Documents/Thesis/Microplankton/R Work/400x June 2022/400x Size Classes/Cyano4_Dim.xlsx")
+```
+
+Diatom
+```{r}
+dia4_dim_table <- filter(bio400_no0, grepl("^Diatom", Organism)) %>% 
+  group_by(Group, type, sa, la, wi) %>%
+  summarize(dimension_count = n(), total_count = sum(counts), 
+            biomass_total = sum(biomass)) %>% 
+  ungroup()
+```
+```{r}
+write_xlsx( dia4_dim_table, "/Users/allisonadams/Documents/Thesis/Microplankton/R Work/400x June 2022/400x Size Classes/Dia4_Dim.xlsx")
+```
+
+Flagellate
+```{r}
+flag4_dim_table <- filter(bio400_no0, grepl("^Flagellate", Organism)) %>% 
+  group_by(Group, type, sa, la, wi) %>%
+  summarize(dimension_count = n(), total_count = sum(counts), 
+            biomass_total = sum(biomass)) %>% 
+  ungroup()
+```
+
+```{r}
+write_xlsx( flag4_dim_table, "/Users/allisonadams/Documents/Thesis/Microplankton/R Work/400x June 2022/400x Size Classes/Flag4_Dim.xlsx")
+```
+
+Unidentified
+```{r}
+unid4_dim_table <- filter(bio400_no0, grepl("^Unidentified", Organism)) %>% 
+  group_by(Group, type, sa, la, wi) %>%
+  summarize(dimension_count = n(), total_count = sum(counts), 
+            biomass_total = sum(biomass)) %>% 
+  ungroup()
+```
+
+```{r}
+write_xlsx(unid4_dim_table, "/Users/allisonadams/Documents/Thesis/Microplankton/R Work/400x June 2022/400x Size Classes/Unid4_Dim.xlsx")
+```
+
+
+
+
