@@ -11,24 +11,53 @@
 
 ### 7/26/23 Copied and pasted the code from 03_calcs_Proportion of TotIR per Taxa.R
 ##  to use for Top 5. No editing done yet, need to do tomorrow
-
+### NOTE!!!!  I stopped at line 59, can't figure it out. Will come back to it tomorrow.
 ### 7/24/23 updated files to include the YBP1 centric diatom large exp rep 2 count to 1
 ##  and created a new data folder data7_24 because I lost the data folder when I made a
 ##  Git Hub repository.
 
 library(tidyverse)
 library(writexl)
-load("data7_24/Clearance Rates 2/CrIrCntRepMnTots.Rdata") # accuracy check done
-### this df above contains the clearance rate reps and means; biomass ingestion rate reps and means;
-##  in pgC and µgC, counts per ml per row of event, taxa rep; total counts, same as previous; 
-##  total counts of taxa across all events; mean clearance rate of each taxa group across all events,
-##  calculated from taking the mean of all the individual reps, and also taking the mean of the means 
-##  of the reps per event
-### The above data frame was created/calculated in 03_calcs_CR_IR_New_06_03.R
+load("data7_24/Clearance Rates 2/IrTotAllTaxaKeptProp.Rdata") # (from 03_calcs_Proportion of TotIR per Taxa.R)
 
-### First remove the columns I don't need from CrIrCntRepMnTots: rep, cpmE, Cmn,
-##CRmlcd, CrMNmlcd, FRpgCcd, FRUgCcd, TotCpm, TotCt, TotCtXallEvents, MnCrXbyReps, MnCrXbyMns
-IrMns <- subset(CrIrCntRepMnTots, select = c(event, group_size, FRUgMn))
+### Use IrTotAllTaxaKeptProp.Rdata to make the top 5 groupings, and use the IR bio totals, not means of means
+baseTop5kept <- IrTotAllTaxaKeptProp %>% 
+  mutate(taxaGroup = group_size)
+
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "ChlLg"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "ChlSm"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "FlagLg"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "PenDiaLg"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "PenDiaSm"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "ChnDiaLg"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "UnidLg"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "UnidSm"] <- "Other"
+
+
+
+### Remove the columns I don't need from IrTotAllTaxaKeptProp that include calculations for the totals:
+##  rep, cpmE, Cmn, CRmlcd, CrMNmlcd, FRpgCcd, FRUgCcd, TotCpm, TotCt, TotCtXallEvents, MnCrXbyReps, MnCrXbyMns
+
+baseTop5kept <- subset(baseTop5kept, select = c(event, group_size, taxaGroup,
+                                                FRUgMn, IrTotAllUgC, IrTotUgCEvent))
+
+### Make a new df with just the Other taxa groups, sum the FRUgMn by event
+##  keep only the data of taxaGroup "Other"
+otherIrBio <- subset(baseTop5kept, taxaGroup == "Other")
+##  Sum the FRUgMn of all Other per sampling event
+otherIrBio <- otherIrBio %>% 
+  group_by(event) %>% 
+  mutate(FRUgMnOther = sum(FRUgMn, na.rm = TRUE)) %>%
+  ungroup
+##  Get rid of the individual taxa groups that make up Other  
+otherIrBio <- subset(otherIrBio, select = c(event, taxaGroup, IrTotAllUgC, IrTotUgCEvent))
+##  Get rid of the duplicated rows
+duplicated(otherIrBio)
+otherIrBio <- otherIrBio %>% distinct()
+### Add this data to baseTop5Kept
+##  First make a new df that has only the the top 5
+#sum(FRUgMn[FRUgMn >= 0 ], na.rm = TRUE))
+
 ### Remove the duplicates that are there as ghosts of the three replicates
 duplicated(IrMns)
 IrMns <- IrMns %>% distinct()
@@ -117,18 +146,8 @@ IrBioPropEvents <- IrTotAllTaxaKeptProp %>%
   mutate()
 
 ### 7/26/23
-### Use IrTotAllTaxaKeptProp to make the top 5 groupings, and use the IR bio totals, not means of means
-baseTop5kept <- IrTotAllTaxaKeptProp %>% 
-  mutate(taxaGroup = group_size)
+### Use IrTotAllTaxaKeptProp (from 03_calcs_Proportion of TotIR per Taxa.R)
 
-baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "ChlLg"] <- "Other"
-baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "ChlSm"] <- "Other"
-baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "FlagLg"] <- "Other"
-baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "PenDiaLg"] <- "Other"
-baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "PenDiaSm"] <- "Other"
-baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "ChnDiaLg"] <- "Other"
-baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "UnidLg"] <- "Other"
-baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "UnidSm"] <- "Other"
 
 ### Sum the FRUgMn according to the Top 5 and other. Top 5 taxa groups are already dont
 ##  Just need to combine the "Other" FRUgMn into one.

@@ -7,7 +7,7 @@
 
 library(tidyverse)
 library(writexl)
-load("data/FinalAnalysis/baseTop5.Rdata")
+load("data7_24/FinalAnalysis/baseTop5.Rdata")
 source("scripts/01_function_clearanceRates.R")
 source("scripts/01_function_feedingRate.R")
 
@@ -92,6 +92,8 @@ source("scripts/01_function_clearanceRates.R")
 sum5Cpm_cr <- rowwise(sum5CpmE_Cmn) %>% 
   mutate(CRmlcd = cr_func(controlMnCt = Cmn, expCt = cpmE))
 
+### Note 7/27/23, I shouldn't replace the NAs with zeros. Instead, I should do na.rm, I think. See
+##  MicroplanktonAnalysis/scripts/03_calcs_Proportion of TotIR per Taxa.R for an example
 ### Replace the NAs with 0 because if not, when R calculates the mean, if one of the reps has NA, but
 ##  the other one or two have a number, R will not calculate it and will return NA
 sum5Cpm_cr <- sum5Cpm_cr %>% 
