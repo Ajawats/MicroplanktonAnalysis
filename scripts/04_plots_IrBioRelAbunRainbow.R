@@ -39,7 +39,7 @@ data <- IrTotAllTaxaKeptProp
 # this didn't work for me: library(basetheme)
 # this didn't work for me: paletteer_d("basetheme::brutal")
 source("scripts/01_function_wimGraph and Palettes.R")
-ggplot(data, aes(fill=group_size, y=PropIRbioUgC, x=event)) + 
+ggplot(Top5KeptProp, aes(fill=group_size, y=PropIRbioUgC, x=event)) + 
   geom_bar(position="fill", stat="identity")+
   scale_fill_manual(values = c("CenDiaLg" = "cornflowerblue", "CenDiaSm" = "lightskyblue", "CilLg" = "salmon3", "CilSm" = "salmon1",
                                 "FlagLg" = "#85B22C", "FlagSm" = "#c3E57E", "PenDiaLg"= "pink4", "PenDiaSm" = "pink3",

@@ -80,6 +80,19 @@ IrTotAllTaxaKeptProp <- IrTotAllTaxaKeptProp %>%
   mutate(PropIrBuTaxaTot =  ifelse(IrTotUgCTaxa>=0, IrTotUgCTaxa/IrTotAllUgC, NA)) %>%
   ungroup
 
+### Add the taxaGroup column with the Other group
+IrTotAllTaxaKeptProp <- IrTotAllTaxaKeptProp %>% 
+  mutate(taxaGroup = group_size)
+
+IrTotAllTaxaKeptProp["taxaGroup"][IrTotAllTaxaKeptProp["taxaGroup"] == "ChlLg"] <- "Other"
+IrTotAllTaxaKeptProp["taxaGroup"][IrTotAllTaxaKeptProp["taxaGroup"] == "ChlSm"] <- "Other"
+IrTotAllTaxaKeptProp["taxaGroup"][IrTotAllTaxaKeptProp["taxaGroup"] == "FlagLg"] <- "Other"
+IrTotAllTaxaKeptProp["taxaGroup"][IrTotAllTaxaKeptProp["taxaGroup"] == "PenDiaLg"] <- "Other"
+IrTotAllTaxaKeptProp["taxaGroup"][IrTotAllTaxaKeptProp["taxaGroup"] == "PenDiaSm"] <- "Other"
+IrTotAllTaxaKeptProp["taxaGroup"][IrTotAllTaxaKeptProp["taxaGroup"] == "ChnDiaLg"] <- "Other"
+IrTotAllTaxaKeptProp["taxaGroup"][IrTotAllTaxaKeptProp["taxaGroup"] == "UnidLg"] <- "Other"
+IrTotAllTaxaKeptProp["taxaGroup"][IrTotAllTaxaKeptProp["taxaGroup"] == "UnidSm"] <- "Other"
+
 save(IrTotAllTaxaKeptProp, file = "data7_24/Clearance Rates 2/IrTotAllTaxaKeptProp.Rdata")
 write_xlsx(IrTotAllTaxaKeptProp, "data7_24/Clearance Rates 2/IrTotAllTaxaKeptProp.xlsx")
 

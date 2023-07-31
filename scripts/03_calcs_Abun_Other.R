@@ -14,6 +14,7 @@ library(writexl)
 
 ### Also, use the df that has the top 5 taxa, plus "other"
 load("data7_24/FinalAnalysis/baseTop5.Rdata")
+
 ### 4/25/23 Make a df that has CR, IRbio, mn pgC per cell and abundance, cpm initials
 
 ### 4/21/23

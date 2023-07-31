@@ -40,6 +40,8 @@ baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "UnidSm"] <- "Other"
 
 baseTop5kept <- subset(baseTop5kept, select = c(event, group_size, taxaGroup,
                                                 FRUgMn, IrTotAllUgC, IrTotUgCEvent))
+save(baseTop5kept, file = "data7_24/Biomass Analysis 06_13/baseTop5kept.Rdata")
+write_xlsx(baseTop5kept, "data7_24/Biomass Analysis 06_13/baseTop5kept.xlsx")
 
 ### Make a new df with just the Other taxa groups, sum the FRUgMn by event
 ##  keep only the data of taxaGroup "Other"
@@ -156,7 +158,9 @@ IrBioTop5other <- baseTop5kept %>%
   group_by(taxaGroup) %>% 
   mutate(FRtotTop5o = sum(FRUgMn, na.rm = TRUE))
 
-
+Top5KeptProp <- baseTop5kept %>% 
+  mutate(PropIRbioUgC =  ifelse(FRUgMn>=0, FRUgMn/IrTotAllUgC, NA))
+sum(IrTotAllTaxaKeptProp$PropIRbioUgC, na.rm = TRUE)
 
 
 
