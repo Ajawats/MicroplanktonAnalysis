@@ -6,11 +6,9 @@
 ##  Need to recalculate abundance in terms of biomass, not cell counts.
 ##  Use the top 5 plus other taxa group data. Save all in new folder, "Final Final"
 
-
 ### 7/24/23 updated files to include the YBP1 centric diatom large exp rep 2 count to 1
 ##  and created a new data folder data7_24 because I lost the data folder when I made a
 ##  Git Hub repository.
-
 
 ### Accuracy checked all the scripts 06/23
 ### Several Calculations for looking at IR, CR, abundance, etc., to be able
@@ -18,7 +16,7 @@
 library(tidyverse)
 library(writexl)
 
-### Also, use the df that has the top 5 taxa, plus "other"
+### Use the df that has the top 5 taxa, plus "other"
 load("data7_24/FinalAnalysis/baseTop5.Rdata")
 
 ### 4/25/23 Make a df that has CR, IRbio, mn pgC per cell and abundance, cpm initials
@@ -29,18 +27,72 @@ load("data7_24/FinalAnalysis/baseTop5.Rdata")
 ##  group_size groups.
 ### Reminder that Small  is esd < 15µm, and Large is esd >= 15 µm
 
-### Use volbio_all_cr.Rdata as the base
 
-library(tidyverse)
-library(writexl)
-load("data7_24/Clearance Rates/volbio_all_cr.Rdata")
-
-abundanceI <- volbio_all_cr %>% 
+### 8/1/23 I lost the work I did yesterday, and thought this way below
+##  might be better, but I'm not sure. I'm taking a break from it now
+######################### INITIAL SAMPLES ############################
+### Filter for the intial samples only
+abundanceI <- baseTop5 %>% 
   filter(exp == "I")
-save(abundanceI, file = "data7_24/Abundance/abundanceI.Rdata")
+### take the mean of all the biomass in pgC per ml, by event and taxaGroup
+AImnAgg <- aggregate(bio_pgC_ml ~ samp_ev + taxaGroup, 
+                     data = abundanceI, mean)
+### sum up the counts per ml by event and taxaGroup
+AItotCpmAgg <- aggregate(cpm ~ samp_ev + taxaGroup, 
+                         data = abundanceI, sum)
+### Join the two data sets together and rename samp_ev and mean biomass
+AIbioMnCpm <- left_join(AImnAgg, AItotCpmAgg) %>% 
+  rename(mnBioPgMl=bio_pgC_ml) %>% 
+  rename(event = samp_ev)
+### Add a column of biomass in ugC per Liter
+AIbioMnCpm <- AIbioMnCpm %>% 
+  mutate(mnBioUgL = mnBioPgMl*.001)
+
+### This above worked, but need to take the means of the replicates,
+##  not all the biomass data
+### Filter for the intial samples only
+abundanceI <- baseTop5 %>% 
+  filter(exp == "I")
+### take the mean of all the biomass in pgC per ml, by event and taxaGroup
+AImnRepsAgg <- aggregate(bio_pgC_ml ~ samp_ev + szesd, 
+                     data = abundanceI, mean)
+### sum up the counts per ml by event and taxaGroup
+AItotCpmAgg <- aggregate(cpm ~ samp_ev + taxaGroup, 
+                         data = abundanceI, sum)
+### Join the two data sets together and rename samp_ev and mean biomass
+AIbioMnCpm <- left_join(AImnAgg, AItotCpmAgg) %>% 
+  rename(mnBioPgMl=bio_pgC_ml) %>% 
+  rename(event = samp_ev)
+### Add a column of biomass in ugC per Liter
+AIbioMnCpm <- AIbioMnCpm %>% 
+  mutate(mnBioUgL = mnBioPgMl*.001)
+
+
+
+
+###Calculate the means of the replicates of biomass pgC mL-1 per entry 
+##  (per organism + dimensions), then sum those replicate means. Add a column
+##  for biomass in µgC per liter, and a column of total cell counts
+AImnBioTxEv2 <-	abundanceI %>% 
+  group_by(samp_ev, szesd) %>% 
+  mutate(mnBpmITxEv = mean(bio_pgC_ml),
+         mnBulITxEv = mean(bio_ugC_l)) %>% 
+  ungroup %>% 
+  rename(event = samp_ev)
+### keep only the columns I want
+AImnBioTxEv2 <- subset(AImnBioTxEv2,
+                       select = c(event, taxaGroup,szesd, mnBpmITxEv, 
+                                  mnBulITxEv,cpm, counts))
+### Sum the cpm and counts
+AIMnBioTxEvCt <-AImnBioTxEv2 %>% 
+  group_by(event, taxaGroup) %>% 
+  mutate(TotCpm = sum(cpm),
+         TotCts = sum(counts)) %>% 
+  ungroup
+
 abunISum <- abundanceI %>% 
-  group_by(samp_date, samp_ev, group_size) %>% 
-  summarise(TotalCpmI = sum(cpm), # sum the counts per ml by group_size, per samp_ev
+  group_by(samp_ev, group_size) %>% 
+  summarise(TotalCpmI = sum(), # sum the counts per ml by group_size, per samp_ev
             .groups = 'drop') %>% 
   as.data.frame() %>% 
   rename(event = samp_ev)
