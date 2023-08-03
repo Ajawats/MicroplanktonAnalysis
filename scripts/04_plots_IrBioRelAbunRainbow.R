@@ -4,7 +4,7 @@
 
 ## -----------------------------------------------------------------------------------------------------
 ##load library
-library(ggplot2)
+library(ggplot2) 
 
 
 ## -----------------------------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ ggplot(Top5KeptProp, aes(fill=group_size, y=PropIRbioUgC, x=event)) +
   wimGraph()
 
 ### Plot with Top 5 and Other categories, use IrBioTop5other.Rdata from 
-##  03_calcs_Proportion of TotIR per Taxa.Rdata
+##  03_calcs_Proportion of TotIR per Taxa.R
 ggplot(IrBioTop5other, aes(fill=Taxa.Group, y=PropIRbioUgC, x=event)) + 
   geom_bar(position="fill", stat="identity")+
   scale_fill_manual(values = c("CenDiaLg" = "cadetblue", "CenDiaSm" = "cadetblue3", "CilLg" = "#FFCA99", "CilSm" = "#FFE5CC",

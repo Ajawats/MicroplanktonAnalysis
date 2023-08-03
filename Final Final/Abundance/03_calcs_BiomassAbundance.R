@@ -37,7 +37,7 @@ abundanceI <- baseTop5 %>%
 ### take the mean of all the biomass in pgC per ml, by event and taxaGroup
 AImnAgg <- aggregate(bio_pgC_ml ~ samp_ev + taxaGroup, 
                      data = abundanceI, mean)
-### sum up the counts per ml by event and taxaGroup
+### sum up the counts per ml by event and taxaGroup77
 AItotCpmAgg <- aggregate(cpm ~ samp_ev + taxaGroup, 
                          data = abundanceI, sum)
 ### Join the two data sets together and rename samp_ev and mean biomass
@@ -60,7 +60,7 @@ AImnRepsAgg <- aggregate(bio_pgC_ml ~ samp_ev + szesd,
 AItotCpmAgg <- aggregate(cpm ~ samp_ev + taxaGroup, 
                          data = abundanceI, sum)
 ### Join the two data sets together and rename samp_ev and mean biomass
-AIbioMnCpm <- left_join(AImnAgg, AItotCpmAgg) %>% 
+AIbioMnCpm <- left_join(AImnRepsAgg, AItotCpmAgg) %>% 
   rename(mnBioPgMl=bio_pgC_ml) %>% 
   rename(event = samp_ev)
 ### Add a column of biomass in ugC per Liter
@@ -73,12 +73,31 @@ AIbioMnCpm <- AIbioMnCpm %>%
 ###Calculate the means of the replicates of biomass pgC mL-1 per entry 
 ##  (per organism + dimensions), then sum those replicate means. Add a column
 ##  for biomass in µgC per liter, and a column of total cell counts
-AImnBioTxEv2 <-	abundanceI %>% 
+RepMnsTestAbun <-	abundanceI %>% 
   group_by(samp_ev, szesd) %>% 
   mutate(mnBpmITxEv = mean(bio_pgC_ml),
          mnBulITxEv = mean(bio_ugC_l)) %>% 
-  ungroup %>% 
-  rename(event = samp_ev)
+  ungroup 
+ # rename(event = samp_ev)
+###Calculate the means of the replicates of biomass pgC mL-1 per entry 
+##  (per organism + dimensions) with the szesd column
+AImnBioTxEv2 <- aggregate(bio_pgC_ml ~ samp_ev + szesd, 
+          data = abundanceI, mean)
+### Take away the entries that have 0 biomass
+AImnBioTxEv2 <- AImnBioTxEv2 %>% 
+  filter(bio_pgC_ml != 0)
+### Add the Top 5 + Other taxaGroups
+AImnBioTxEv2 <- AImnBioTxEv2 %>% 
+  mutate(taxaGroup = group_size)
+
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "ChlLg"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "ChlSm"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "FlagLg"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "PenDiaLg"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "PenDiaSm"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "ChnDiaLg"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "UnidLg"] <- "Other"
+baseTop5kept["taxaGroup"][baseTop5kept["taxaGroup"] == "UnidSm"] <- "Other"
 ### keep only the columns I want
 AImnBioTxEv2 <- subset(AImnBioTxEv2,
                        select = c(event, taxaGroup,szesd, mnBpmITxEv, 
