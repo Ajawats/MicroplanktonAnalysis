@@ -34,38 +34,52 @@ load("data7_24/FinalAnalysis/baseTop5.Rdata")
 ### Filter for the intial samples only
 abundanceI <- baseTop5 %>% 
   filter(exp == "I")
-### take the mean of all the biomass in pgC per ml, by event and taxaGroup
-AImnAgg <- aggregate(bio_pgC_ml ~ samp_ev + taxaGroup, 
+### take the mean of all the biomass in pgC per ml, by event and taxaGroup, top 5 and other
+AImnAgg5 <- aggregate(bio_pgC_ml ~ samp_ev + taxaGroup, 
                      data = abundanceI, mean)
-### sum up the counts per ml by event and taxaGroup77
-AItotCpmAgg <- aggregate(cpm ~ samp_ev + taxaGroup, 
-                         data = abundanceI, sum)
-### Join the two data sets together and rename samp_ev and mean biomass
-AIbioMnCpm <- left_join(AImnAgg, AItotCpmAgg) %>% 
-  rename(mnBioPgMl=bio_pgC_ml) %>% 
-  rename(event = samp_ev)
 ### Add a column of biomass in ugC per Liter
-AIbioMnCpm <- AIbioMnCpm %>% 
+AImnAgg5 <- AImnAgg5 %>% 
+  rename(mnBioPgMl = bio_pgC_ml) %>% 
   mutate(mnBioUgL = mnBioPgMl*.001)
+save(AImnAgg5, file = "Final Final/Abundance/AImnAgg5.Rdata")
+### do same as above but with the 17 taxa groups, group_size
+AImnAgg17 <- aggregate(bio_pgC_ml ~ samp_ev + group_size, 
+                      data = abundanceI, mean)
+AImnAgg17 <- AImnAgg17 %>% 
+  rename(mnBioPgMl = bio_pgC_ml) %>% 
+  mutate(mnBioUgL = mnBioPgMl*.001)
+save(AImnAgg17, file = "Final Final/Abundance/AImnAgg17.Rdata")
+
+
+### sum up the counts per ml by event and taxaGroup-- don't need to do this right now
+#AItotCpmAgg <- aggregate(cpm ~ samp_ev + taxaGroup, 
+                       #  data = abundanceI, sum)
+### Join the two data sets together and rename samp_ev and mean biomass
+#AIbioMnCpm <- left_join(AImnAgg, AItotCpmAgg) %>% 
+#  rename(mnBioPgMl=bio_pgC_ml) %>% 
+#  rename(event = samp_ev)
+### Add a column of biomass in ugC per Liter
+#AIbioMnCpm <- AIbioMnCpm %>% 
+#  mutate(mnBioUgL = mnBioPgMl*.001)
 
 ### This above worked, but need to take the means of the replicates,
 ##  not all the biomass data
 ### Filter for the intial samples only
-abundanceI <- baseTop5 %>% 
-  filter(exp == "I")
+#abundanceI <- baseTop5 %>% 
+#  filter(exp == "I")
 ### take the mean of all the biomass in pgC per ml, by event and taxaGroup
-AImnRepsAgg <- aggregate(bio_pgC_ml ~ samp_ev + szesd, 
-                     data = abundanceI, mean)
+#AImnRepsAgg <- aggregate(bio_pgC_ml ~ samp_ev + szesd, 
+#                     data = abundanceI, mean)
 ### sum up the counts per ml by event and taxaGroup
-AItotCpmAgg <- aggregate(cpm ~ samp_ev + taxaGroup, 
-                         data = abundanceI, sum)
+#AItotCpmAgg <- aggregate(cpm ~ samp_ev + taxaGroup, 
+#                         data = abundanceI, sum)
 ### Join the two data sets together and rename samp_ev and mean biomass
-AIbioMnCpm <- left_join(AImnRepsAgg, AItotCpmAgg) %>% 
-  rename(mnBioPgMl=bio_pgC_ml) %>% 
-  rename(event = samp_ev)
+#AIbioMnCpm <- left_join(AImnRepsAgg, AItotCpmAgg) %>% 
+#  rename(mnBioPgMl=bio_pgC_ml) %>% 
+#  rename(event = samp_ev)
 ### Add a column of biomass in ugC per Liter
-AIbioMnCpm <- AIbioMnCpm %>% 
-  mutate(mnBioUgL = mnBioPgMl*.001)
+#AIbioMnCpm <- AIbioMnCpm %>% 
+ # mutate(mnBioUgL = mnBioPgMl*.001)
 
 
 
