@@ -38,7 +38,9 @@ save(baseTop5kept, file = "data7_24/FinalAnalysis/baseTop5kept.Rdata")
 load("data7_24/FinalAnalysis/baseTop5.Rdata")
 
 ### Updated 7/19 with the new volbio that has the YBP1 CenDiaLg E count rep 2 corrected
-data <- read.csv("data/Clearance Rates/volbio_all_cr_new_07_18.csv")
+#data <- read.csv("data/Clearance Rates/volbio_all_cr_new_07_18.csv")
+### after 7/19, volbio_all_cr.Rdata was updated to include this correction, so it is 
+##  now the master base file.
 
 baseTop5 <- data %>% 
   mutate(taxaGroup = group_size)
