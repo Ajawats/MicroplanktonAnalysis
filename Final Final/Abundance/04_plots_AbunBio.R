@@ -1,8 +1,10 @@
 ############################################################################
-########################## ABUNDANCE PLOTS AUGUST 2023  #########################
+########################## ABUNDANCE PLOTS AUGUST 2023  ####################
 ############################################################################
 
 ### 8/7/23
+### 8/8/23 Plot code also found in 03_calcs_BiomassAbundance.R
+### Plots saved in MicroplanktonAnalysis/Final Final/Abundance/
 
 library(tidyverse)
 library(writexl)
@@ -28,7 +30,10 @@ ggplot(AI5TotProp, aes(fill=taxaGroup, y=PropBioPgCm, x=event)) +
 
 
 ### Absolute
-ggplot(data= AI5TotProp, aes(taxaGroup, BioPgMl)) + 
+ggplot(data= AI5TotProp,aes(x = factor(group_size, level = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm",
+                                                             "ChlLg","ChlSm","ChnDiaLg","ChnDiaSm","CyanoLg","CyanoSm",
+                                                             "DinoLg","FlagLg","PenDiaLg","PenDiaSm","UnidLg","UnidSm")),
+                            y=BioPgMl)) +  
   geom_point()+
   scale_y_continuous(expand=expansion(mult=c(.1,0.15)),
                      limits = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm"))+
