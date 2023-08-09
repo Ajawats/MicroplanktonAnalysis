@@ -7,7 +7,7 @@ library(tidyverse)
 library(writexl)
 source("scripts/01_function_wimGraph and Palettes.R")
 source("scripts/01_function_Scale Break.R")
-load("data/Clearance Rates 2/sumCpm_CRmn.Rdata") # Clearance Rates means only
+load("data7_24/Clearance Rates 2/sumCpm_CRmn.Rdata") # Clearance Rates means only
 
 ### Make a test df with just LSZ2, of just the means, sumCpm_CRmn
 

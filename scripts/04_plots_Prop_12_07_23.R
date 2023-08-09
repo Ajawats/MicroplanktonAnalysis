@@ -6,7 +6,6 @@
 library(tidyverse)
 library(writexl)
 source("scripts/01_function_wimGraph and Palettes.R")
-source("scripts/01_function_wimGraph and Palettes.R")
 
 ### I entered by hand the data from data7_24/Clearance Rates 2/IrTotAllTaxaKeptProp.Rdata,
 ##  created in 03_calcs_Proportion of TotIR per Taxa.R

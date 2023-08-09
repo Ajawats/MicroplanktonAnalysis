@@ -2,8 +2,13 @@
 #################### ABUNDANCE in terms of BIOMASS   #####################
 ############################################################################
 
-######################  INCLUDES PLOTS  ####################
+### 8/9/23 Changed data to plot µgC L^-1 instead of pgC ml-1, and changed plot titles
+##  no need to put the word "Abundance" in there
+### 8/7/23  INCLUDES PLOTS  ####################
 ############################################################
+
+######## 8/7/23  NOTE!!  I'm doing abundance by biomass, not counts ##########
+
 
 ### 7/28/23 Used 03_calcs_Abun_Other.R in scripts folder as a template for this
 ##  Need to recalculate abundance in terms of biomass, not cell counts.
@@ -107,7 +112,7 @@ ggplot(AI5TotProp, aes(fill=taxaGroup, y=PropBioPgCm, x=event)) +
                     name = "Taxa Group")+
   xlab(NULL)+
   ylab(NULL)+
-  ggtitle("Taxa Group Relative Biomass Abundance, pgC"~mL^-1)+
+  ggtitle("Relative Carbon Biomass")+
   theme(plot.title = element_text(hjust = 0.5),
         axis.title.y = element_text(size = 10),
         axis.text.y = element_text(size = 6))+
@@ -115,16 +120,14 @@ ggplot(AI5TotProp, aes(fill=taxaGroup, y=PropBioPgCm, x=event)) +
 
 
 ### Absolute
-ggplot(data= AI5TotProp, aes(taxaGroup, BioPgMl, color = taxaGroup)) + 
+ggplot(data= AI5TotProp, aes(taxaGroup, BioUgL, color = taxaGroup)) + 
   geom_point()+
   scale_color_manual(values = c("CenDiaLg" = "cornflowerblue", "CenDiaSm" = "lightskyblue", "CilLg" = "salmon3", "CilSm" = "salmon1",
-                                "FlagSm" = "#85B22C"))+
-  scale_y_continuous(expand=expansion(mult=c(.1,0.15)))+#,
-                     #limits = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm"))+
+                                "FlagSm" = "#85B22C", "Other" = "dimgrey"))+
+  scale_y_continuous(expand=expansion(mult=c(.1,0.15)))+
   facet_wrap(~event, ncol = 2, scales = "free")+
-  xlab("Taxa Groups")+
-  ylab("pgC"~ml^-1)+
-  ggtitle("Biomass Abundance")+
+  xlab(NULL)+
+  ylab("Biomass, µgC"~L^-1)+
   theme(plot.title = element_text(hjust = 0.5),
         axis.title.y = element_text(size = 10),
         axis.title.x = element_text(size = 10),
@@ -132,6 +135,7 @@ ggplot(data= AI5TotProp, aes(taxaGroup, BioPgMl, color = taxaGroup)) +
         axis.text.x = element_text(angle = 60, hjust = 0.8, vjust = 0.8, size = 6),
         legend.position = "none")+
   wimGraph()
+### saved plot as 5x5
 
 ### Relative biomass abundance showed >10% "Other" in SJR2, WLD2, YBP1 and YBP2,
 ##  so break them out individually
@@ -139,48 +143,48 @@ ggplot(subset(AISumAgg17, samp_ev %in%"SJR2"),
        aes(x = factor(group_size, level = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm",
                                             "ChlLg","ChlSm","ChnDiaLg","ChnDiaSm","CyanoLg","CyanoSm",
                                             "DinoLg","FlagLg","PenDiaLg","PenDiaSm","UnidLg","UnidSm")),
-           y=BioPgMl, color = group_size)) + 
+           y=BioUgL, color = group_size)) + 
   geom_point(size=2)+
   scale_color_manual(values = c("CenDiaLg" = "cornflowerblue", "CenDiaSm" = "lightskyblue", "CilLg" = "salmon3", "CilSm" = "salmon1",
-                                "FlagSm" = "#85B22C",  "black", "black", "black",
-                                "black", "black", "black", "black",  "black",
-                                "black", "black", "black", "black"))+
+                                "FlagSm" = "#85B22C",  "dimgrey", "dimgrey", "dimgrey",
+                                "dimgrey", "dimgrey", "dimgrey", "dimgrey",  "dimgrey",
+                                "dimgrey", "dimgrey", "dimgrey", "dimgrey"))+
   #scale_y_continuous(expand=expansion(mult=c(.1,0.15)))+
   xlab("Taxa Groups")+
-  ylab("pgC"~ml^-1)+
-  ggtitle("SJR2 Biomass Abundance")+
+  ylab("µgC"~L^-1)+
+  ggtitle("SJR2")+
   theme(plot.title = element_text(hjust = 0.5),
-        axis.title.y = element_text(size = 10),
-        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 9),
+        #axis.title.x = element_text(size = 10),
         axis.text.y = element_text(size = 9),
         axis.text.x = element_text(angle = 60, hjust = 0.8, vjust = 0.8, size = 9),
         legend.position = "none")+
   wimGraph()
+### save as 4 X 5
 
 ### Also plot all 17 taxa groups
 ggplot(data= AISumAgg17,
        aes(x = factor(group_size, level = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm",
                                             "ChlLg","ChlSm","ChnDiaLg","ChnDiaSm","CyanoLg","CyanoSm",
                                             "DinoLg","FlagLg","PenDiaLg","PenDiaSm","UnidLg","UnidSm")),
-                             y=BioPgMl, color = group_size)) + 
+                             y=BioUgL, color = group_size)) + 
   geom_point()+
   scale_color_manual(values = c("CenDiaLg" = "cornflowerblue", "CenDiaSm" = "lightskyblue", "CilLg" = "salmon3", "CilSm" = "salmon1",
-                                "FlagSm" = "#85B22C",  "black", "black", "black",
-                               "black", "black", "black", "black",  "black",
-                               "black", "black", "black", "black"))+
+                                "FlagSm" = "#85B22C",  "dimgrey", "dimgrey", "dimgrey",
+                               "dimgrey", "dimgrey", "dimgrey", "dimgrey",  "dimgrey",
+                               "dimgrey", "dimgrey", "dimgrey", "dimgrey"))+
   scale_y_continuous(expand=expansion(mult=c(.1,0.15)))+#,
                      #limits = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm"))+
   facet_wrap(~samp_ev, ncol = 2, scales = "free")+
-  xlab("Taxa Groups")+
-  ylab("pgC"~ml^-1)+
-  ggtitle("Biomass Abundance")+
+  xlab(NULL)+
+  ylab("µgC"~L^-1)+
   theme(plot.title = element_text(hjust = 0.5),
-        axis.title.y = element_text(size = 10),
-        axis.title.x = element_text(size = 10),
+        axis.title.y = element_text(size = 9),
         axis.text.y = element_text(size = 6),
         axis.text.x = element_text(angle = 60, hjust = 0.8, vjust = 0.8, size = 6),
         legend.position = "none")+
   wimGraph()
+### Plot saved as 6 x 5.5
 
 ### Plots saved in MicroplanktonAnalysis/Final Final/Abundance/
 

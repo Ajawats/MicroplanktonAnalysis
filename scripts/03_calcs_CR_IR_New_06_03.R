@@ -9,8 +9,9 @@
 
 ### 6/2/23, + 6/7, + 6/8, + 6/9
 ### DFs created here:
-load("data7_24/Clearance Rates 2/sumCpm_cr.Rdata") #Clearance Rates with reps and means
+load("data7_24/Clearance Rates 2/sumCpm_cr.Rdata") #Clearance Rates with reps, no means
 load("data7_24/Clearance Rates 2/sumCpm_CRmn.Rdata") # Clearance Rates means only
+load("data7_24/Clearance Rates 2/CR_Rep_Mn.Rdata") # Clearance rates reps and means
 load("data7_24/Clearance Rates 2/IrCrBio_Rep_Mn.Rdata") # Clearance rates reps and means,
 ###  with ingestion rates, biomass, reps and means, pgC and µgC
 load("data7_24/Clearance Rates 2/Feeding Rates/FRCells_Rep_Mn.Rdata") # Ingestion rates,

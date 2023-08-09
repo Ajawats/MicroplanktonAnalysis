@@ -2,9 +2,16 @@
 ########################## ABUNDANCE PLOTS AUGUST 2023  ####################
 ############################################################################
 
-### 8/7/23
+
+#################################### READ THIS FIRST !!!!! ##################
+### The most updated plots are in the calculations file, not here!
+##  in 03_calcs_BiomassAbundance.R ####################################
+
+### 8/9/23 Replot with µgC L^-1, 
+
 ### 8/8/23 Plot code also found in 03_calcs_BiomassAbundance.R
 ### Plots saved in MicroplanktonAnalysis/Final Final/Abundance/
+### 8/7/23
 
 library(tidyverse)
 library(writexl)
@@ -14,7 +21,7 @@ source("scripts/01_function_wimGraph and Palettes.R")
 load("Final Final/Abundance/AI5TotProp.Rdata") # For proportions and absolute, from 03_calcs_BiomassAbundance.R
 
 ### Proportions
-ggplot(AI5TotProp, aes(fill=taxaGroup, y=PropBioPgCm, x=event)) + 
+ggplot(AI5TotProp, aes(fill=taxaGroup, y=PropBioUgCl, x=event)) + 
   geom_bar(position="fill", stat="identity")+
   scale_fill_manual(values = c("CenDiaLg" = "cornflowerblue", "CenDiaSm" = "lightskyblue", "CilLg" = "salmon3", "CilSm" = "salmon1",
                                "FlagSm" = "#85B22C", "Other" = "peachpuff"),
@@ -22,31 +29,54 @@ ggplot(AI5TotProp, aes(fill=taxaGroup, y=PropBioPgCm, x=event)) +
                     name = "Taxa Group")+
   xlab(NULL)+
   ylab(NULL)+
-  ggtitle("Taxa Group Relative Biomass Abundance, pgC"~mL^-1)+
+  ggtitle("Relative Carbon Biomass")+
   theme(plot.title = element_text(hjust = 0.5),
         axis.title.y = element_text(size = 10),
         axis.text.y = element_text(size = 6))+
   wimGraph()
 
 
-### Absolute
-ggplot(data= AI5TotProp,aes(x = factor(group_size, level = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm",
+### Absolute, 17 taxa groups
+load("Final Final/Abundance/AISumAgg17.Rdata")
+ggplot(data= AISumAgg17,aes(x = factor(taxaGroup, level = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm",
                                                              "ChlLg","ChlSm","ChnDiaLg","ChnDiaSm","CyanoLg","CyanoSm",
                                                              "DinoLg","FlagLg","PenDiaLg","PenDiaSm","UnidLg","UnidSm")),
-                            y=BioPgMl)) +  
+                            y=BioUgL)) +  
   geom_point()+
-  scale_y_continuous(expand=expansion(mult=c(.1,0.15)),
-                     limits = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm"))+
+  scale_y_continuous(expand=expansion(mult=c(.1,0.15)))+
+                   #  limits = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm"))+
   facet_wrap(~event, ncol = 2, scales = "free")+
   xlab("Taxa Groups")+
-  ylab("pgC"~ml^-1)+
-  ggtitle("Biomass Abundance")+
+  ylab("Biomass, µgC"~L^-1)+
+  #ggtitle("Biomass")+
   theme(plot.title = element_text(hjust = 0.5),
         axis.title.y = element_text(size = 10),
         axis.title.x = element_text(size = 10),
         axis.text.y = element_text(size = 6),
         axis.text.x = element_text(angle = 60, hjust = 0.8, vjust = 0.8, size = 6))+
   wimGraph()
+
+### Absolute, Top 5 + Other taxa groups
+ggplot(data= AI5TotProp,aes(x = factor(taxaGroup, level = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm", "Other")),
+                            color = taxaGroup, y=BioUgL)) +  
+  geom_point()+
+  scale_color_manual(values = c("CenDiaLg" = "cornflowerblue", "CenDiaSm" = "lightskyblue", "CilLg" = "salmon3", "CilSm" = "salmon1",
+                                "FlagSm" = "#85B22C", "Other" = "dimgrey"))+
+  scale_y_continuous(expand=expansion(mult=c(.1,0.15)))+#,
+   # limits = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm"))+
+  facet_wrap(~event, ncol = 2, scales = "free")+
+  xlab("Taxa Groups")+
+  ylab("Biomass, µgC"~L^-1)+
+  #ggtitle("Biomass")+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.title.y = element_text(size = 10),
+        axis.title.x = element_text(size = 10),
+        axis.text.y = element_text(size = 6),
+        axis.text.x = element_text(angle = 60, hjust = 0.8, vjust = 0.8, size = 6),
+        legend.position = "none")+
+  wimGraph()
+### saved plot as 5x5
+
 
 ### Relative biomass abundance showed >10% "Other" in SJR2, WLD2, YBP1 and YBP2,
 ##  so break them out individually
