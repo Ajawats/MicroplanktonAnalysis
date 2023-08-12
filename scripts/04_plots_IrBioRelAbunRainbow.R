@@ -10,7 +10,7 @@ library(ggplot2)
 ## -----------------------------------------------------------------------------------------------------
 #load data
 
-data <- read.csv("data/Clearance Rates 2/IrTotAllTaxaKeptProp.csv")
+data <- read.csv("data7_24/Clearance Rates 2/IrTotAllTaxaKeptPropNew.csv")
 head(data)
 
 
@@ -39,6 +39,7 @@ data <- IrTotAllTaxaKeptProp
 # this didn't work for me: library(basetheme)
 # this didn't work for me: paletteer_d("basetheme::brutal")
 source("scripts/01_function_wimGraph and Palettes.R")
+load()
 ggplot(Top5KeptProp, aes(fill=group_size, y=PropIRbioUgC, x=event)) + 
   geom_bar(position="fill", stat="identity")+
   scale_fill_manual(values = c("CenDiaLg" = "cornflowerblue", "CenDiaSm" = "lightskyblue", "CilLg" = "salmon3", "CilSm" = "salmon1",

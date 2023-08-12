@@ -7,7 +7,7 @@
 
 library(tidyverse)
 library(writexl)
-load("data/Clearance Rates/volbio_all_cr.Rdata")
+load("data7_24/MasterFiles/MasterRFiles/volbio_all_cr.Rdata")
 ### When returning to this code to run it again, load:
 load("data/SiteWater/siteCntBio.Rdata")
 
@@ -61,7 +61,7 @@ siteBioUgLTot  <- siteCntBio %>%
   summarise(tot_bio_ug = sum(bio_ugC_l))
 min(siteBioUgLTot$tot_bio_ug)
 max(siteBioUgLTot$tot_bio_ug)
-save(siteBioUgLTot, file = "data/SiteWater/siteBioUgLTot.Rdata")
+save(siteBioUgLTot, file = "data7_24/SiteWater/siteBioUgLTot.Rdata")
 
 ### Make separate plots for each of the sampling events
 ## Cells

@@ -99,3 +99,27 @@ ggplot(subset(AISumAgg17, samp_ev %in%"LSZ2"),
 
 ### Plots saved in MicroplanktonAnalysis/Final Final/Abundance/
 
+### Plot individual AISumAgg17 using paginate
+library(ggforce)
+
+load("Final Final/Abundance/AISumAgg17.Rdata")
+ggplot(data= AISumAgg17,aes(x = factor(taxaGroup, level = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm",
+                                                            "ChlLg","ChlSm","ChnDiaLg","ChnDiaSm","CyanoLg","CyanoSm",
+                                                            "DinoLg","FlagLg","PenDiaLg","PenDiaSm","UnidLg","UnidSm")),
+                            y=BioUgL)) +  
+  geom_point()+
+  scale_y_continuous(expand=expansion(mult=c(.1,0.15)))+
+  #  limits = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm"))+
+  
+  facet_wrap(~event, ncol = 2, scales = "free")+
+  #facet_wrap_paginate(~ event, ncol = 2, nrow =2, page = 3)
+  xlab("Taxa Groups")+
+  ylab("Biomass, µgC"~L^-1)+
+  #ggtitle("Biomass")+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.title.y = element_text(size = 10),
+        axis.title.x = element_text(size = 10),
+        axis.text.y = element_text(size = 6),
+        axis.text.x = element_text(angle = 60, hjust = 0.8, vjust = 0.8, size = 6))+
+  wimGraph()
+

@@ -199,4 +199,6 @@ volbio_all_cr["group_size"][volbio_all_cr["group_size"] == "chainDiatom small"] 
 volbio_all_cr["group_size"][volbio_all_cr["group_size"] == "unidentified large"] <- "UnidLg"
 volbio_all_cr["group_size"][volbio_all_cr["group_size"] == "unidentified small"] <- "UnidSm"
 
-save(volbio_all_cr, file = "data7_24/Clearance Rates/volbio_all_cr.Rdata")
+save(volbio_all_cr, file = "data7_24/MasterFiles/MasterRFiles/volbio_all_cr.Rdata")
+write_xlsx(volbio_all_cr, "data7_24/MasterFiles/volbio_all_cr.xlsx")
+load("data7_24/Clearance Rates/volbio_all_cr.Rdata")

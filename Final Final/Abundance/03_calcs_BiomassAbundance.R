@@ -78,6 +78,8 @@ AISumAgg17 <- aggregate(bio_pgC_ml ~ samp_ev + group_size,
 AISumAgg17 <- AISumAgg17 %>% 
   rename(BioPgMl = bio_pgC_ml) %>% 
   mutate(BioUgL = BioPgMl*.001)
+AISumAgg17 <- AISumAgg17 %>% 
+  rename(taxaGroup = group_size)
 save(AISumAgg17, file = "Final Final/Abundance/AISumAgg17.Rdata")
 
 ### Make another column with the proportion of the whole
@@ -97,18 +99,37 @@ AI5TotProp <- AI5Tot %>%
          PropBioUgCl = BioUgL/TotEvBioUgCL) %>% 
   rename(event = samp_ev)
 save(AI5TotProp, file = "Final Final/Abundance/AI5TotProp.Rdata") 
+load("Final Final/Abundance/AI5TotProp.Rdata")
 
+### Do the proportions for all 17 taxa groups
+## Join AISumAGg17 with AIbioTotEvTx5
+### rename samp_ev to event
+AIbioTotEvTx5 <- AIbioTotEvTx5 %>% 
+  rename(event = samp_ev)
+AI17Tot <- left_join(AISumAgg17, AIbioTotEvTx5)
+## Put it in µgC L
+AI17Tot <- AI17Tot %>% 
+  mutate(TotEvBioUgCL = TotEvBioPgCm*.001)
+## 3) Calculate the proportion that each taxaGroup biomass contributed to total
+AI17TotProp <- AI17Tot %>% 
+  mutate(PropBioPgCm = BioPgMl/TotEvBioPgCm,
+         PropBioUgCl = BioUgL/TotEvBioUgCL)
+save(AI17TotProp, file = "Final Final/Abundance/AI17TotProp.Rdata") 
+load("Final Final/Abundance/AI17TotProp.Rdata")
 
 ################################# PLOT IT ##################################
 ############################################################################
 source("scripts/01_function_wimGraph and Palettes.R")
 
 ### Proportions
-ggplot(AI5TotProp, aes(fill=taxaGroup, y=PropBioPgCm, x=event)) + 
+ggplot(AI17TotProp, aes(fill=taxaGroup, y=PropBioPgCm, x=event)) + 
   geom_bar(position="fill", stat="identity")+
   scale_fill_manual(values = c("CenDiaLg" = "cornflowerblue", "CenDiaSm" = "lightskyblue", "CilLg" = "salmon3", "CilSm" = "salmon1",
-                               "FlagSm" = "#85B22C", "Other" = "peachpuff"),
-                    limits = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm", "Other"),
+                               "FlagLg" = "#85B22C", "FlagSm" = "#c3E57E", "PenDiaLg"= "pink4", "PenDiaSm" = "pink3",
+                               "ChlSm" = "#CC8E51", "ChnDiaLg" = "peachpuff", "UnidLg" = "plum4", "UnidSm" = "plum2"),
+                    limits = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm", "FlagLg", "PenDiaLg", "PenDiaSm",
+                               "ChnDiaLg", "ChlSm", "UnidLg", "UnidSm"),
+                    #limits = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm", "Other"),
                     name = "Taxa Group")+
   xlab(NULL)+
   ylab(NULL)+
@@ -139,20 +160,22 @@ ggplot(data= AI5TotProp, aes(taxaGroup, BioUgL, color = taxaGroup)) +
 
 ### Relative biomass abundance showed >10% "Other" in SJR2, WLD2, YBP1 and YBP2,
 ##  so break them out individually
-ggplot(subset(AISumAgg17, samp_ev %in%"SJR2"), 
+load("Final Final/Abundance/AISumAgg17.Rdata")
+ggplot(subset(AISumAgg17, samp_ev %in%"SJR1"), 
        aes(x = factor(group_size, level = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm",
                                             "ChlLg","ChlSm","ChnDiaLg","ChnDiaSm","CyanoLg","CyanoSm",
                                             "DinoLg","FlagLg","PenDiaLg","PenDiaSm","UnidLg","UnidSm")),
            y=BioUgL, color = group_size)) + 
   geom_point(size=2)+
-  scale_color_manual(values = c("CenDiaLg" = "cornflowerblue", "CenDiaSm" = "lightskyblue", "CilLg" = "salmon3", "CilSm" = "salmon1",
+  scale_color_manual(values = c("CenDiaLg" = "cornflowerblue", "CenDiaSm" = "lightskyblue", 
+                                "CilLg" = "salmon3", "CilSm" = "salmon1",
                                 "FlagSm" = "#85B22C",  "dimgrey", "dimgrey", "dimgrey",
                                 "dimgrey", "dimgrey", "dimgrey", "dimgrey",  "dimgrey",
                                 "dimgrey", "dimgrey", "dimgrey", "dimgrey"))+
   #scale_y_continuous(expand=expansion(mult=c(.1,0.15)))+
   xlab("Taxa Groups")+
   ylab("µgC"~L^-1)+
-  ggtitle("SJR2")+
+  ggtitle("SJR1")+
   theme(plot.title = element_text(hjust = 0.5),
         axis.title.y = element_text(size = 9),
         #axis.title.x = element_text(size = 10),
@@ -162,12 +185,12 @@ ggplot(subset(AISumAgg17, samp_ev %in%"SJR2"),
   wimGraph()
 ### save as 4 X 5
 
-### Also plot all 17 taxa groups
+### Also plot all 17 taxa groups, Absolute
 ggplot(data= AISumAgg17,
-       aes(x = factor(group_size, level = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm",
+       aes(x = factor(taxaGroup, level = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm",
                                             "ChlLg","ChlSm","ChnDiaLg","ChnDiaSm","CyanoLg","CyanoSm",
                                             "DinoLg","FlagLg","PenDiaLg","PenDiaSm","UnidLg","UnidSm")),
-                             y=BioUgL, color = group_size)) + 
+                             y=BioUgL, color = taxaGroup)) + 
   geom_point()+
   scale_color_manual(values = c("CenDiaLg" = "cornflowerblue", "CenDiaSm" = "lightskyblue", "CilLg" = "salmon3", "CilSm" = "salmon1",
                                 "FlagSm" = "#85B22C",  "dimgrey", "dimgrey", "dimgrey",
@@ -175,7 +198,7 @@ ggplot(data= AISumAgg17,
                                "dimgrey", "dimgrey", "dimgrey", "dimgrey"))+
   scale_y_continuous(expand=expansion(mult=c(.1,0.15)))+#,
                      #limits = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm"))+
-  facet_wrap(~samp_ev, ncol = 2, scales = "free")+
+  facet_wrap(~event, ncol = 2, scales = "free")+
   xlab(NULL)+
   ylab("µgC"~L^-1)+
   theme(plot.title = element_text(hjust = 0.5),
@@ -188,5 +211,52 @@ ggplot(data= AISumAgg17,
 
 ### Plots saved in MicroplanktonAnalysis/Final Final/Abundance/
 
+### Plot individual AISumAgg17 using paginate
+library(ggforce)
+
+load("Final Final/Abundance/AISumAgg17.Rdata")
+abSJR2 <-ggplot(data= AISumAgg17,
+       aes(x = factor(taxaGroup, level = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm",
+                                            "ChlLg","ChlSm","ChnDiaLg","ChnDiaSm","CyanoLg","CyanoSm",
+                                            "DinoLg","FlagLg","PenDiaLg","PenDiaSm","UnidLg","UnidSm")),
+           y=BioUgL, color = taxaGroup)) + 
+  geom_point()+
+  scale_color_manual(values = c("CenDiaLg" = "cornflowerblue", "CenDiaSm" = "lightskyblue", "CilLg" = "salmon3", "CilSm" = "salmon1",
+                                "FlagSm" = "#85B22C",  "dimgrey", "dimgrey", "dimgrey",
+                                "dimgrey", "dimgrey", "dimgrey", "dimgrey",  "dimgrey",
+                                "dimgrey", "dimgrey", "dimgrey", "dimgrey"))+
+  scale_y_continuous(expand=expansion(mult=c(.1,0.15)))+#,
+  #limits = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm"))+
+  #facet_wrap(~samp_ev, ncol = 2, scales = "free")+
+  facet_wrap_paginate(~ event, ncol = 1, nrow =1, page = 3, scales = "free")+
+  xlab(NULL)+
+  ylab("µgC"~L^-1)+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.title.y = element_text(size = 9),
+        axis.text.y = element_text(size = 6),
+        axis.text.x = element_text(angle = 60, hjust = 0.8, vjust = 0.8, size = 6),
+        legend.position = "none")+
+  wimGraph()
+abSJR2
+### Plot saved as 6 x 5.5
+
+############################ SITE WATER BIOMASS ABUNDANCE ###############################
+#########################################################################################
+### Proportions
+ggplot(siteBioUgLTot, aes(fill=group_size, y=tot_bio_ug, x=samp_ev)) + 
+  geom_bar(position="fill", stat="identity")+
+  scale_fill_manual(values = c("CenDiaLg" = "cornflowerblue", "CenDiaSm" = "lightskyblue", "CilLg" = "salmon3", "CilSm" = "salmon1",
+                               "FlagLg" = "#85B22C", "FlagSm" = "#c3E57E", "PenDiaLg"= "pink4", "PenDiaSm" = "pink3",
+                               "ChlSm" = "#CC8E51", "ChnDiaLg" = "peachpuff", "UnidLg" = "plum4", "UnidSm" = "plum2"),
+                    limits = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm", "FlagLg", "PenDiaLg", "PenDiaSm",
+                               "ChnDiaLg", "ChlSm", "UnidLg", "UnidSm"),
+                    name = "Taxa Group")+
+  xlab(NULL)+
+  ylab(NULL)+
+  ggtitle("Site Water, Carbon Biomass")+
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.title.y = element_text(size = 10),
+        axis.text.y = element_text(size = 6))+
+  wimGraph()
 
 

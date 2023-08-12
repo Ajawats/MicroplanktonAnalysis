@@ -696,9 +696,15 @@ abunCt_Cpm <- abunCt_Cpm %>%
 save(abunCt_Cpm, file = "data7_24/Abundance/abunCt_Cpm.Rdata")
 ### 4)
 CrIrCntRepMn <- left_join(IRCRbioUg_Rep_Mn,abunCt_Cpm)
+CrIrCntRepMn <- CrIrCntRepMn %>% 
+  rename(TotICpm = TotCpm, TotICt = TotCt) 
+
 save(CrIrCntRepMn, file = "data7_24/Clearance Rates 2/CrIrCntRepMn.Rdata")
-write_xlsx(CrIrCntRepMn, "data7_24/Clearance Rates 2/CrIrCntRepMn.xlsx")
+write_xlsx(CrIrCntRepMn, "data7_24/Clearance Rates 2/CrIrCntRepMn2.xlsx")
 load("data7_24/Clearance Rates 2/CrIrCntRepMn.Rdata")
+
+
+
 ### Add columns: one for total counts across all sampling events and
 CrIrCntRepMnTots <- CrIrCntRepMn %>% 
   group_by(group_size) %>% 
