@@ -54,6 +54,7 @@ AImnAgg5 <- AImnAgg5 %>%
   rename(mnBioPgMl = bio_pgC_ml) %>% 
   mutate(mnBioUgL = mnBioPgMl*.001)
 save(AImnAgg5, file = "Final Final/Abundance/AImnAgg5.Rdata")
+write_xlsx(AImnAgg5, "Final Final/Abundance/AImnAgg5.xlsx")
 
 ### sum of all the biomass in pgC per ml, by event and taxaGroup, top 5 and other
 AISumAgg5 <- aggregate(bio_pgC_ml ~ samp_ev + taxaGroup, 
@@ -63,6 +64,7 @@ AISumAgg5 <- AISumAgg5 %>%
   rename(BioPgMl = bio_pgC_ml) %>% 
   mutate(BioUgL = BioPgMl*.001)
 save(AISumAgg5, file = "Final Final/Abundance/AISumAgg5.Rdata")
+write_xlsx(AISumAgg5, "Final Final/Abundance/AISumAgg5.xlsx")
 
 ### do same as above but with the 17 taxa groups, group_size
 AImnAgg17 <- aggregate(bio_pgC_ml ~ samp_ev + group_size, 
@@ -71,6 +73,7 @@ AImnAgg17 <- AImnAgg17 %>%
   rename(mnBioPgMl = bio_pgC_ml) %>% 
   mutate(mnBioUgL = mnBioPgMl*.001)
 save(AImnAgg17, file = "Final Final/Abundance/AImnAgg17.Rdata")
+write_xlsx(AImnAgg17, "Final Final/Abundance/AImnAgg17.xlsx")
 
 ### Sum biomass for the 17 taxa groups, group_size
 AISumAgg17 <- aggregate(bio_pgC_ml ~ samp_ev + group_size, 
@@ -81,6 +84,7 @@ AISumAgg17 <- AISumAgg17 %>%
 AISumAgg17 <- AISumAgg17 %>% 
   rename(taxaGroup = group_size)
 save(AISumAgg17, file = "Final Final/Abundance/AISumAgg17.Rdata")
+write_xlsx(AISumAgg17, "Final Final/Abundance/AISumAgg17.xlsx")
 
 ### Make another column with the proportion of the whole
 ## 1) Get the total biomass pgC ml-1 for each event and taxa group

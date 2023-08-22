@@ -48,7 +48,7 @@ load("data7_24/Clearance Rates 2/CrIrCntMnTots2.Rdata")
 
 library(tidyverse)
 library(writexl)
-load("data7_24/Clearance Rates/volbio_all_cr.Rdata")
+load("data7_24/MasterFiles/MasterRFiles/volbio_all_cr.Rdata")
 source("scripts/01_function_clearanceRates.R")
 source("scripts/01_function_feedingRate.R")
 
@@ -69,8 +69,8 @@ save(base, file = "data7_24/Clearance Rates 2/base.Rdata")
 ###### _________________CLEARANCE RATE _________________________###
 ##################################################################
 
-### Sum up the cpm for the 15 group_size groups, adding all cpm for organisms
-##  that fall into those 15 categories, such as, all the small centric diatoms
+### Sum up the cpm for the 17 group_size groups, adding all cpm for organisms
+##  that fall into those 17 categories, such as, all the small centric diatoms
 ##  in a sampling event, experimental bottle
 sumCpm <- base %>% 
   group_by(samp_ev, group_size, exp, rep) %>% 
