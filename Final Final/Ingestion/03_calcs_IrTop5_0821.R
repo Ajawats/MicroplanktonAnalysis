@@ -3,11 +3,13 @@
 ####################  FOR TOP 5 + OTHER  #############################
 ######################################################################
 
-### 8/21/23
+### 8/21/23, 9/4/23
 library(tidyverse)
 library(writexl)
 load("data7_24/FinalAnalysis/baseTop5.Rdata")
 source("scripts/01_function_feedingRate.R")
+
+### IR means with reps
 
 ### Use baseTop5.Rdata as the base file, because it has the taxaGroup column with just top 5 + other
 ### Select only the columns needed for CR
@@ -33,29 +35,48 @@ sumBpm_Imn <- sumBpmI %>%
             .groups = 'drop') %>% 
   as.data.frame()
 
+
 ### Remove unneeded columns, and rename and re-order remaining columns
 names(sumBpm_Imn)
 sumBpm_Imn <- sumBpm_Imn %>% 
   rename(event = samp_ev)
 
-### Join sumBpm_Imn with the df that has clearance rates
-load("Final Final/Clearance/CrMnTop5.Rdata")
-sumBpm_cr_Imn <- 	left_join(CrMnTop5, sumBpm_Imn, 
-                            by = c("event", "taxaGroup"))
+### Join sumBpm_Imn with the df that has clearance rates, reps, of Top 5 + other 
+### CR_Rep_Mn_Top5.Rdata, from 03_calcs_CrTi=op5_0821.R
+load("Final Final/Clearance/CR_Rep_Mn_Top5.Rdata")
+### In CR_Rep_Mn, change group_size column name to taxaGroup
 
+sumBpm_cr_Imn <- 	left_join(CR_Rep_Mn_Top5, sumBpm_Imn, 
+                            by = c("event", "taxaGroup"))
 
 ### Calculate ingestion (feeding) rate
 source("scripts/01_function_feedingRate.R")
 IrTop5 <- rowwise(sumBpm_cr_Imn) %>% 
-  mutate(IRpgCd = fr_func(CR=CrMNmlcd, initialMnCt = ImnBpm))
+  mutate(IRpgCd = fr_func(CR=CRmlcd, initialMnCt = ImnBpm))
 
 ### Remove the exp column and the ImnBpm column
-IrTop5 <- select(IrTop5, event, taxaGroup, CrMNmlcd, IRpgCd)
+IrTop5 <- select(IrTop5, event, taxaGroup, CRmlcd, IRpgCd)
+
+### Calculate mean IRpgCd
+IrTop5 <- IrTop5 %>% 
+  group_by(event, taxaGroup) %>% 
+  mutate(IrMnpgCd = mean(IRpgCd)) %>% 
+  ungroup
 
 ### Add a column for ingestion rate in µgC L^1
-IrTop5 <- IrTop5 %>% 
-  mutate(IRµgCd = IRpgCd*.000001)
+IrTop5RepMns <- IrTop5 %>% 
+  mutate(IRµgCd = IRpgCd*.000001, IrMnµgCd = IrMnpgCd*.000001)
 
-save(IrTop5, file = "Final Final/Ingestion/IrTop5.Rdata")
-write_xlsx(IrTop5, "Final Final/Ingestion/IrTop5.xlsx")
-load("Final Final/Ingestion/IrTop5.Rdata")
+save(IrTop5RepMns, file = "Final Final/Ingestion/IrTop5RepMns.Rdata")
+write_xlsx(IrTop5RepMns, "Final Final/Ingestion/IrTop5RepMns.xlsx")
+load("Final Final/Ingestion/IrTop5RepMns.Rdata")
+
+### Only ingestion rate values greater than 0
+IrTop5RepMns2 <- IrTop5RepMns %>% 
+  select(c(event, taxaGroup, IRµgCd, IrMnµgCd))
+IrTop5RepMns2 <- subset(IrTop5RepMns2, IRµgCd>0 & IrMnµgCd>0)
+save(IrTop5RepMns2, file = "Final Final/Ingestion/IrTop5RepMns2.Rdata")
+write_xlsx(IrTop5RepMns2, "Final Final/Ingestion/IrTop5RepMns2.xlsx")
+
+
+

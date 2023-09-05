@@ -39,7 +39,7 @@ sumCpm_E <- sumCpm_CE%>%
   filter(exp == "E")%>% 
   rename(cpmE = TotalCpm) 
 
-### Create a df with only initial samples (for the ingestion rates)
+### Create a df with only initial samples (for the ingestion rates by counts, for later)
 sumCpm_I <- sumCpm%>% 
   filter(exp == "I")%>% 
   rename(cpmI = TotalCpm) 
@@ -50,7 +50,7 @@ sumCpm_I <- sumCpm%>%
 ##  and the mean of the control sample counts per ml or biomass per ml
 sumCpm_Cmn <- sumCpm_C %>% 
   group_by(samp_ev, taxaGroup, exp) %>% 
-  summarise(Cmn=mean(cpmC),
+  summarise(CmnCpm=mean(cpmC),
             .groups = 'drop') %>% 
   as.data.frame()
 
@@ -68,16 +68,18 @@ names(sumCpmE_Cmn)
 sumCpmE_Cmn <- select(sumCpmE_Cmn, 
                       event = samp_ev,
                       taxaGroup, rep, cpmE,
-                      Cmn)
+                      CmnCpm)
 
 ### Calculate clearance rates. The resulting data frame includes all the replicates
 ## since the CR was calculated for each replicate.
 source("scripts/01_function_clearanceRates.R")
-sumCpm_cr <- rowwise(sumCpmE_Cmn) %>% 
-  mutate(CRmlcd = cr_func(controlMnCt = Cmn, expCt = cpmE))
+CR_Rep_Mn_Top5 <- rowwise(sumCpmE_Cmn) %>% 
+  mutate(CRmlcd = cr_func(controlMnCt = CmnCpm, expCt = cpmE))
+write_xlsx(CR_Rep_Mn_Top5, "Final Final/Clearance/CR_Rep_Mn_Top5.xlsx")
+save(CR_Rep_Mn_Top5,file =  "Final Final/Clearance/CR_Rep_Mn_Top5.Rdata")
 
 ###  Take the mean of the CR per taxaGroup per event
-CrMnTop5 <- sumCpm_cr %>% 
+CrMnTop5 <- CR_Rep_Mn_Top5 %>% 
   group_by(event, taxaGroup) %>% 
   summarize(CrMNmlcd = mean(CRmlcd, na.rm = TRUE))
 write_xlsx(CrMnTop5, "Final Final/Clearance/CrMnTop5.xlsx")

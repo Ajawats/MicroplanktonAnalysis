@@ -53,17 +53,22 @@ CR_Rep_MnYBP1 <- CR_Rep_Mn %>%
 ##  the Scale Break when plotting two variables. It just squished all the
 ##  CR reps together
 ### To plot without Scale Break
-crYBP1 <- ggplot(data=CR_Rep_MnYBP1, aes(x = factor(group_size, level = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm",
-                                                                     "ChlLg","ChlSm","ChnDiaLg","ChnDiaSm","CyanoLg","CyanoSm",
-                                                                     "DinoLg","FlagLg","PenDiaLg","PenDiaSm","UnidLg","UnidSm")),
+crYBP1 <- ggplot(data=CR_Rep_MnYBP1, 
+                 aes(x = factor(group_size, 
+                                level = c("CenDiaLg", "CenDiaSm", "CilLg", 
+                                          "CilSm", "FlagSm","ChlLg","ChlSm",
+                                          "ChnDiaLg", "ChnDiaSm","CyanoLg",
+                                          "CyanoSm", "DinoLg","FlagLg","PenDiaLg",
+                                          "PenDiaSm","UnidLg","UnidSm")),
                                     y=CrMNmlcd)) +
+  geom_point(data = CR_Rep_MnYBP1,
+             aes(y=CRmlcd),
+             color="#E69F00", size=2,
+             position = position_jitter(width = 0.45))+
   geom_hline(yintercept=0, color="gray", linewidth=1) +
   geom_vline(xintercept=  "ChlLg",  color="gray", linewidth=1)+
   geom_point(aes(color = CrMNmlcd>0), size = 4)+
   scale_color_manual(values=c("FALSE"="#D55E00","TRUE"="#0072B2"))+
-  geom_point(data = CR_Rep_MnYBP1,
-             aes(y=CRmlcd),
-             color="#E69F00", size=2)+
   xlab(NULL) +
   ggtitle("YBP1 Clearance Rates")+
   scale_y_continuous(limits = c(-37, 73), 
@@ -267,7 +272,8 @@ crYBP1 <- ggplot(data=CR_Rep_MnYBP1, aes(x = factor(group_size, level = c("CenDi
   scale_color_manual(values=c("FALSE"="#D55E00","TRUE"="#0072B2"))+
   geom_point(data = CR_Rep_MnYBP1,
              aes(y=CRmlcd),
-             color="#E69F00", size=1)+
+             color="#E69F00", size=1,
+             position = position_jitter(width = 0.45))+
   xlab(NULL) +
   ggtitle("YBP1 Clearance Rates")+
   scale_y_continuous(limits = c(-37, 73), 
