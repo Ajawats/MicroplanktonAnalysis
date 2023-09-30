@@ -571,7 +571,7 @@ sumBpm_I <- sumBpm %>%
   filter(exp == "I")%>%
   select(samp_ev, exp,rep, group_size, TotalBpm)
 
-### Apply the mean function to the initial mean counts per ml across
+### Apply the mean function to the initial mean biomass in pgC per ml across
 ## the three replicates, as done in the CR
 sumBpm_Imn <- sumBpm_I %>% 
   group_by(samp_ev, exp, group_size) %>%

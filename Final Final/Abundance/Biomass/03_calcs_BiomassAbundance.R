@@ -103,7 +103,8 @@ AI5TotProp <- AI5Tot %>%
          PropBioUgCl = BioUgL/TotEvBioUgCL) %>% 
   rename(event = samp_ev)
 save(AI5TotProp, file = "Final Final/Abundance/AI5TotProp.Rdata") 
-load("Final Final/Abundance/AI5TotProp.Rdata")
+load("Final Final/Abundance/Biomass/AI5TotProp.Rdata")
+write_xlsx(AI5TotProp, "Final Final/Abundance/Biomass/AI5TotProp.xlsx")
 
 ### Do the proportions for all 17 taxa groups
 ## Join AISumAGg17 with AIbioTotEvTx5
@@ -119,7 +120,8 @@ AI17TotProp <- AI17Tot %>%
   mutate(PropBioPgCm = BioPgMl/TotEvBioPgCm,
          PropBioUgCl = BioUgL/TotEvBioUgCL)
 save(AI17TotProp, file = "Final Final/Abundance/AI17TotProp.Rdata") 
-load("Final Final/Abundance/AI17TotProp.Rdata")
+load("Final Final/Abundance/Biomass/AI17TotProp.Rdata")
+write_xlsx(AI17TotProp, "Final Final/Abundance/Biomass/AI17TotProp.xlsx")
 
 ################################# PLOT IT ##################################
 ############################################################################

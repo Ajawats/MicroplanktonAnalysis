@@ -27,7 +27,7 @@ load("data7_24/FinalAnalysis/baseTop5.Rdata")
 
 library(tidyverse)
 library(writexl)
-load("data7_24/Clearance Rates/volbio_all_cr.Rdata")
+load("data7_24/MasterFiles/MasterRFiles/volbio_all_cr.Rdata")
 
 abundanceI <- volbio_all_cr %>% 
   filter(exp == "I")
@@ -41,13 +41,14 @@ abunISum <- abundanceI %>%
 
 
 ### Abundance totals, taxa groups across all sampling events
-AbunISumOverall <- abunISum %>% 
+AbunISumTaxa17Totals <- abunISum %>% 
   group_by(group_size) %>% 
   summarise(TotalCpmIAll = sum(TotalCpmI), # sum the counts per ml by group_size, per samp_ev
             .groups = 'drop') %>% 
   as.data.frame()
-save(AbunISumOverall, file = "data7_24/Abundance/AbunISumOverall.Rdata")
-write_xlsx(AbunISumOverall, "data7_24/Abundance/AbunISumOverall.xlsx")
+save(AbunISumTaxa17Totals, file = "data7_24/Abundance/AbunISumTaxa17Totals.Rdata")
+write_xlsx(AbunISumTaxa17Totals, "data7_24/Abundance/AbunISumTaxa17Totals.xlsx")
+
 load("data7_24/Abundance/AbEventsOnly.Rdata")
 
 ### Abundance totals, events only

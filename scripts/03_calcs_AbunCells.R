@@ -2,7 +2,6 @@
 ############ SITE WATER SAMPLES ABUNDANCE (Counts and Biomass) ###############
 ##############################################################################
 
-
 ### 8/14/23 See notes about the site water rel biomass plot in Thesis Project and Analysis Notes.docx
 ##  or in my notebook, p. 85, re: discussion with Wim in meeting 8/12
 ### Includes code to get cpm totals for initials and experimentals to plot and compare with site water
@@ -161,19 +160,17 @@ testIcpmProp <- IcpmProp %>%
 ### summed the prop column, it checks out, sums to 1
 save(IcpmProp, file = "Final Final/Abundance/Cells/IcpmProp.Rdata")
 write_xlsx(IcpmProp, "Final Final/Abundance/Cells/IcpmProp.xlsx")
-load("Final Final/Abundance/Cells/IcpmProp.Rdata")
+
 ### Plot to compare with site water
 source("scripts/01_function_wimGraph and Palettes.R")
 
 plot_IcpmProp <-ggplot(IcpmProp, aes(fill=taxaGroup, y=IcpmProp, x=samp_ev)) + 
   geom_bar(position="fill", stat="identity")+
-  scale_fill_manual(values = c("CenDiaLg" = "cornflowerblue", "CenDiaSm" = "lightskyblue", 
-                               "CilLg" = "salmon3", "CilSm" = "salmon1", "FlagLg" = "#85B22C", 
-                               "FlagSm" = "#c3E57E", "PenDiaLg"= "pink4", "PenDiaSm" = "pink3",
-                               "ChlLg" = "tan", "ChlSm" = "#CC8E51", "ChnDiaLg" = "peachpuff", 
-                               "UnidLg" = "plum4", "UnidSm" = "plum2"),
-                    limits = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm", "FlagLg", 
-                               "PenDiaLg", "PenDiaSm", "ChnDiaLg", "ChlLg","ChlSm", "UnidLg", "UnidSm"),
+  scale_fill_manual(values = c("CenDiaLg" = "cornflowerblue", "CenDiaSm" = "lightskyblue", "CilLg" = "salmon3", "CilSm" = "salmon1",
+                               "FlagLg" = "#85B22C", "FlagSm" = "#c3E57E", "PenDiaLg"= "pink4", "PenDiaSm" = "pink3",
+                               "ChlSm" = "#CC8E51", "ChnDiaLg" = "peachpuff", "UnidLg" = "plum4", "UnidSm" = "plum2"),
+                    limits = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm", "FlagLg", "PenDiaLg", "PenDiaSm",
+                               "ChnDiaLg", "ChlSm", "UnidLg", "UnidSm"),
                     name = "Taxa Group")+
   xlab(NULL)+
   ylab(NULL)+
@@ -182,81 +179,6 @@ plot_IcpmProp <-ggplot(IcpmProp, aes(fill=taxaGroup, y=IcpmProp, x=samp_ev)) +
         axis.title.y = element_text(size = 10),
         axis.text.y = element_text(size = 6))+
   wimGraph()
-plot_IcpmProp
-
-############## INITIALS, TOP 5 + OTHER, WITH PROPORTIONS #####################
-##############################################################################
-### Use baseTop5.Rdata as the base. It's the same as volbio_all_cr.Rdata, but
-##  has a column for the top 5 + other taxa group categories
-
-initialsCpm <- volbio_all_cr %>%
-  filter(exp == "I") %>% 
-  select(samp_ev, exp, rep, Group, type, shp, sa, la, wi, grp_sz, grp_esd, counts, cpm, taxaGroup=group_size)
-
-### take the mean of the 3 replicates of each organism in thr grp_sz column,
-##  because that is the most distinct grouping
-IcpmTot <- initialsCpm %>% 
-  group_by(samp_ev, Group, type, shp, sa, la, wi, grp_sz) %>% 
-  mutate(cpmTot = mean(cpm))
-### Remove the unneeded columns
-IcpmTotno0 <- IcpmTot %>% 
-  subset(select = c(samp_ev, grp_sz, taxaGroup, cpmTot)) %>% 
-  filter(cpmTot != 0)
-### Remove the rows that are "duplicates" because I only want to keep one
-##  mean value, not the mean value for all three replicates
-IcpmTotno01 <- IcpmTotno0 %>% distinct()
-### Now sum all the replicate means in the same taxaGroup
-IcpmTot2 <- IcpmTotno01 %>% 
-  group_by(samp_ev, taxaGroup) %>% 
-  mutate(TotCpmTx = sum(cpmTot))
-### Add a column of total cpm, all taxa, per sampling event
-IcpmTot2allTxperEvent <- IcpmTot2 %>% 
-  group_by(samp_ev) %>% 
-  mutate(cpmTotallTxperEv = sum(cpmTot)) %>% 
-  ungroup
-### test
-ybp2TxAllEvTest <- IcpmTot2allTxperEvent %>% 
-  filter(samp_ev == "YBP2") %>% 
-  summarise(totCpmallTx = sum(cpmTot))
-### that's accurate
-### Remove the columns again like above
-IcpmTot3 <- IcpmTot2allTxperEvent %>% 
-  subset(select= c(-grp_sz, -cpmTot))
-### Remove the "duplicate" rows like above
-IcpmTot4 <- IcpmTot3 %>% distinct()
-### Calculate proportions
-### Calculate the proportion of the total FR UgC that each group_size contributed to total
-IcpmProp <- IcpmTot4 %>% 
-  mutate(IcpmProp = TotCpmTx/cpmTotallTxperEv)
-### Test IcpmProp
-testIcpmProp <- IcpmProp %>% 
-  filter(samp_ev =="YBP2")
-### summed the prop column, it checks out, sums to 1
-save(IcpmProp, file = "Final Final/Abundance/Cells/IcpmProp.Rdata")
-write_xlsx(IcpmProp, "Final Final/Abundance/Cells/IcpmProp.xlsx")
-load("Final Final/Abundance/Cells/IcpmProp.Rdata")
-### Plot to compare with site water
-source("scripts/01_function_wimGraph and Palettes.R")
-
-plot_IcpmProp <-ggplot(IcpmProp, aes(fill=taxaGroup, y=IcpmProp, x=samp_ev)) + 
-  geom_bar(position="fill", stat="identity")+
-  scale_fill_manual(values = c("CenDiaLg" = "cornflowerblue", "CenDiaSm" = "lightskyblue", 
-                               "CilLg" = "salmon3", "CilSm" = "salmon1", "FlagLg" = "#85B22C", 
-                               "FlagSm" = "#c3E57E", "PenDiaLg"= "pink4", "PenDiaSm" = "pink3",
-                               "ChlLg" = "tan", "ChlSm" = "#CC8E51", "ChnDiaLg" = "peachpuff", 
-                               "UnidLg" = "plum4", "UnidSm" = "plum2"),
-                    limits = c("CenDiaLg", "CenDiaSm", "CilLg", "CilSm", "FlagSm", "FlagLg", 
-                               "PenDiaLg", "PenDiaSm", "ChnDiaLg", "ChlLg","ChlSm", "UnidLg", "UnidSm"),
-                    name = "Taxa Group")+
-  xlab(NULL)+
-  ylab(NULL)+
-  ggtitle("Taxa Group Relative Counts per mL, Initial Samples")+
-  theme(plot.title = element_text(hjust = 0.5),
-        axis.title.y = element_text(size = 10),
-        axis.text.y = element_text(size = 6))+
-  wimGraph()
-plot_IcpmProp
-
 
 
 ############################## EXPERIMENTALS ##################################

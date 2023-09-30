@@ -9,6 +9,11 @@ library(writexl)
 load("data7_24/FinalAnalysis/baseTop5.Rdata")
 source("scripts/01_function_feedingRate.R")
 
+### Data files made here:
+### IrTop5RepMns.Rdata, ingestion rates of top 5 taxa groups + other, reps with means
+### Not found here, but made somewhere: IrTop5Mns.Rdata, ingestion rates top 5 taxa
+##   groups + other, means of taxa groups, no reps.
+
 ### IR means with reps
 
 ### Use baseTop5.Rdata as the base file, because it has the taxaGroup column with just top 5 + other
@@ -78,5 +83,13 @@ IrTop5RepMns2 <- subset(IrTop5RepMns2, IRµgCd>0 & IrMnµgCd>0)
 save(IrTop5RepMns2, file = "Final Final/Ingestion/IrTop5RepMns2.Rdata")
 write_xlsx(IrTop5RepMns2, "Final Final/Ingestion/IrTop5RepMns2.xlsx")
 
-
+### Make a df that sums the IR of all taxa groups per sampling event
+IrTotPerEvent <- IrTop5 %>% 
+  group_by(event) %>%
+  summarise(TotalIrpg = sum(IRpgCd),
+            TotalIRug=sum(IRµgCd),
+            .groups = 'drop') %>% 
+  as.data.frame()
+save(IrTotPerEvent, file = "Final Final/Ingestion/R data/IrTotPerEvent.Rdata")  
+write_xlsx(IrTotPerEvent, "Final Final/Ingestion/Excel Files/IrTotPerEvent.xlsx")
 

@@ -1,1 +1,2 @@
 load("/Users/allisonadams/My files/Thesis/Microplankton/MicroplanktonAnalysis/data7_24/FinalAnalysis/IRtotByEvent.Rdata")
+load("/Users/allisonadams/My files/Thesis/Microplankton/MicroplanktonAnalysis/data7_24/FinalAnalysis/baseTop5.Rdata")
