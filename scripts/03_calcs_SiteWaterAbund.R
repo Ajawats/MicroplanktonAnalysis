@@ -47,32 +47,51 @@ siteBioUgLTot  <- siteCntBio %>%
 min(siteBioUgLTot$tot_bio_ug)
 max(siteBioUgLTot$tot_bio_ug)
 save(siteBioUgLTot, file = "data7_24/SiteWater/siteBioUgLTot.Rdata")
+load("data7_24/SiteWater/siteBioUgLTot.Rdata")
 
-### Calculate the proportions of each
+### Calculate the proportions of each, cpm and biomass
+### 11/13/23 revisiting this and found an error in how the cpm was totaled
+### make a test of LSZ2 so I can see it better
+lsz2SiteCntBioProp <- filter(siteCntBioProp, samp_ev %in% "LSZ2") 
+### The above contains all individual entries of organisms. Some taxaGroups have
+##  mulitple rows of differing counts because in the original data frame, those entries
+##  were different sized organisms, so their biomass was different. So when I total the
+## cpm of all organisms for the whole sampling event, I need to remove those rows with
+## duplicate cpm.
+
+### Remove the rows with zero biomass, which means also zero counts
 siteCntBioProp <- siteCntBio %>% 
   filter(bio_ugC_l !=0)
+### Remove the unneeded columns, so that the duplicated rows can be removed
+siteCntBioProp <- siteCntBioProp %>% 
+  select(samp_ev, taxaGroup, tot_cpmTaxa, tot_bio_ugTaxa)
+siteCntBioProp <- siteCntBioProp %>%
+  distinct()
+### Now calculate the total cpm per sampling event
 siteCntBioProp <- siteCntBioProp %>% 
   group_by(samp_ev) %>% 
   mutate(totCpmEv = sum(tot_cpmTaxa)) %>%
            ungroup
+## And now the total biomass per sampling event
 siteCntBioProp <- siteCntBioProp %>% 
   group_by(samp_ev) %>% 
   mutate(totBioUgEv = sum(tot_bio_ugTaxa)) %>%
   ungroup
-
-siteCntBioProp <- siteCntBioProp %>% 
-  select(samp_ev, taxaGroup, tot_cpmTaxa, tot_cpmTaxa, totCpmEv, 
-         tot_bio_ugTaxa, totBioUgEv)
-siteCntBioProp <- siteCntBioProp %>%
-  distinct()
-
+### Calculate the proportion each taxa group contributes to sampling event total
+##  of cpm and biomass 
 siteCntBioProp <- siteCntBioProp %>%
   mutate(propCpm = tot_cpmTaxa/totCpmEv,
          propBioUgL = tot_bio_ugTaxa/totBioUgEv)
+save(siteCntBioProp, file = "data7_24/SiteWater/siteCntBioProp.Rdata")
+save(siteCntBioProp, file = "Final Final/Site Water/siteCntBioProp.Rdata")
+write_xlsx(siteCntBioProp, "Final Final/Site Water/siteCntBioProp.xlsx")
+
 ### Test the numbers
 sitePropTest <- siteCntBioProp %>% 
   filter(samp_ev == "LSZ2")
-  
+sum(sitePropTest$propCpm) 
+sum(sitePropTest$propBioUgL)
+### Both summed to 1.
 
 ################# Plot the Site Water #############################
 source("scripts/01_function_wimGraph and Palettes.R")
@@ -92,7 +111,7 @@ plot_siteCpmProp <- ggplot(siteCntBioProp, aes(fill=taxaGroup, y=propCpm, x=samp
         axis.title.y = element_text(size = 10),
         axis.text.y = element_text(size = 6))+
   wimGraph()
-
+plot_siteCpmProp
 ### Bio ug L, proportion
 plot_siteBioProp <-ggplot(siteCntBioProp, aes(fill=taxaGroup, y=propBioUgL, x=samp_ev)) + 
   geom_bar(position="fill", stat="identity")+
